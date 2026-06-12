@@ -32,6 +32,15 @@ const UI = (() => {
         statusClasses.forEach(c => dot.classList.remove(c));
         dot.classList.add(state);
         refs.statusText.textContent = text || stateText(state);
+        // Also set status class on text for color
+        refs.statusText.className = '';
+        if (state) refs.statusText.classList.add(state);
+        // Video wrapper glow effect
+        const wrapper = document.querySelector('.video-wrapper');
+        if (wrapper) {
+            ['speaking', 'thinking'].forEach(c => wrapper.classList.remove(c));
+            if (state === 'speaking' || state === 'thinking') wrapper.classList.add(state);
+        }
     }
 
     function stateText(state) {
