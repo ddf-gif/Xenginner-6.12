@@ -56,7 +56,12 @@ async def websocket_endpoint(ws: WebSocket):
     qwen = QwenRelayClient(
         on_event=lambda etype, payload: asyncio.create_task(
             _relay_qwen_event(ws, etype, payload)
-        )
+        ),
+        on_restart=lambda: asyncio.create_task(
+            ws.send_text(make_browser_message(
+                BackendEvent.STATUS, state=StatusState.LISTENING
+            ))
+        ),
     )
 
     try:
