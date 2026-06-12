@@ -1,105 +1,134 @@
 /**
- * AI Visual Dialogue Assistant — Main application entry.
+ * AI Visual Dialogue Assistant — Main application.
  *
- * Handles:
- * - Camera & microphone permission via getUserMedia
- * - Application state machine
- * - Module orchestration (audio, video, WS, UI)
+ * Orchestrates: UI, AudioCapture, VideoCapture, WsClient, AudioPlayback.
  */
 const App = (() => {
-    // ── State ──────────────────────────────────────────────────────
-    const State = {
-        IDLE: 'idle',
-        STARTING: 'starting',
-        RUNNING: 'running',
-        ERROR: 'error',
-    };
-
+    const State = { IDLE: 'idle', STARTING: 'starting', RUNNING: 'running', ERROR: 'error' };
     let _state = State.IDLE;
     let _mediaStream = null;
+    let _ws = null;
+    let _audioOut = null;
 
-    // ── Camera + Microphone initialization ─────────────────────────
+    // ── Media ───────────────────────────────────────────────────────
     async function requestMedia() {
         try {
-            const constraints = {
-                video: {
-                    width: { ideal: 1280 },
-                    height: { ideal: 720 },
-                    facingMode: 'user',
-                },
-                audio: {
-                    sampleRate: 16000,
-                    channelCount: 1,
-                    echoCancellation: true,
-                    noiseSuppression: true,
-                },
-            };
-
-            _mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
-
-            // Show camera preview
+            _mediaStream = await navigator.mediaDevices.getUserMedia({
+                video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' },
+                audio: { sampleRate: 16000, channelCount: 1, echoCancellation: true, noiseSuppression: true },
+            });
             UI.refs.cameraPreview.srcObject = _mediaStream;
             UI.hidePermissionOverlay();
-
             return true;
         } catch (err) {
             console.error('getUserMedia error:', err);
-
-            if (err.name === 'NotAllowedError') {
+            if (err.name === 'NotAllowedError')
                 UI.addErrorMessage('摄像头/麦克风权限被拒绝，请在浏览器设置中允许访问。');
-            } else if (err.name === 'NotFoundError') {
+            else if (err.name === 'NotFoundError')
                 UI.addErrorMessage('未检测到摄像头或麦克风设备。');
-            } else {
+            else
                 UI.addErrorMessage(`设备访问失败: ${err.message}`);
-            }
             return false;
         }
     }
 
     function stopMedia() {
         if (_mediaStream) {
-            _mediaStream.getTracks().forEach(track => track.stop());
+            _mediaStream.getTracks().forEach(t => t.stop());
             _mediaStream = null;
         }
         UI.refs.cameraPreview.srcObject = null;
         UI.showPermissionOverlay();
     }
 
-    // ── Start / Stop ───────────────────────────────────────────────
+    // ── WebSocket event handler ─────────────────────────────────────
+    function handleWsMessage(type, payload) {
+        switch (type) {
+        case 'status':
+            UI.setStatus(payload.state);
+            if (payload.state === 'listening') {
+                // Ready for next round
+            }
+            break;
+        case 'text_delta':
+            UI.appendAiText(payload.text || '');
+            break;
+        case 'text_done':
+            UI.finishAiBubble();
+            break;
+        case 'audio_delta':
+            if (UI.isAudioEnabled()) {
+                _audioOut.addChunk(payload.data || '');
+            }
+            break;
+        case 'audio_done':
+            if (UI.isAudioEnabled()) {
+                _audioOut.play();
+            }
+            break;
+        case 'error':
+            UI.addErrorMessage(payload.message || 'AI 服务错误');
+            UI.setStatus('error');
+            break;
+        default:
+            console.log('Unhandled WS message:', type, payload);
+        }
+    }
+
+    // ── Start ───────────────────────────────────────────────────────
     async function start() {
         if (_state === State.RUNNING) return;
         _state = State.STARTING;
         UI.setStatus('connecting', '正在启动...');
         UI.setButtons(false, false);
 
+        // 1. Request camera + mic
         const ok = await requestMedia();
-        if (!ok) {
-            _state = State.ERROR;
-            UI.setStatus('error', '设备启动失败');
-            UI.setButtons(true, false);
-            return;
-        }
+        if (!ok) { _state = State.ERROR; UI.setStatus('error', '设备启动失败'); UI.setButtons(true, false); return; }
 
-        // Check WebSocket support
-        if (!window.WebSocket) {
-            UI.addErrorMessage('您的浏览器不支持 WebSocket');
-            _state = State.ERROR;
-            UI.setStatus('error');
-            UI.setButtons(true, false);
-            return;
-        }
+        // 2. Connect WebSocket
+        _ws = new WsClient();
+        _ws.onMessage = handleWsMessage;
+        _ws.connect();
+
+        // 3. Init audio playback
+        _audioOut = AudioPlayback;
+
+        // 4. Start audio capture
+        await AudioCapture.start(_mediaStream);
+        AudioCapture.onChunk = (base64) => {
+            if (_ws && _ws.isConnected) _ws.send({ type: 'audio', data: base64 });
+        };
+        AudioCapture.onLevel = (level) => UI.setMeterLevel(level);
+
+        // 5. Start video capture
+        VideoCapture.start(UI.refs.cameraPreview, UI.refs.captureCanvas);
+        VideoCapture.onFrame = (base64) => {
+            if (_ws && _ws.isConnected) _ws.send({ type: 'video', data: base64 });
+        };
+
+        // 6. Send session start (small delay to let WS connect)
+        setTimeout(() => {
+            if (_ws && _ws.isConnected) _ws.send({ type: 'start_session' });
+        }, 500);
 
         _state = State.RUNNING;
-        UI.setStatus('idle', '就绪 — 已在监听');
+        UI.setStatus('listening', '正在聆听...');
         UI.setButtons(false, true);
-        UI.addSystemMessage('摄像头与麦克风已就绪。WebSocket 集成将在后续 PR 中完成。');
+        UI.addSystemMessage('✅ 已连接，开始对话吧！');
     }
 
+    // ── Stop ────────────────────────────────────────────────────────
     async function stop() {
+        AudioCapture.stop();
+        VideoCapture.stop();
+        _audioOut.destroy();
+        if (_ws) { _ws.send({ type: 'end_session' }); _ws.disconnect(); _ws = null; }
         stopMedia();
         _state = State.IDLE;
         UI.setStatus('idle', '等待连接');
         UI.setButtons(true, false);
+        UI.addSystemMessage('对话已结束。');
     }
 
     // ── Init ────────────────────────────────────────────────────────
@@ -109,26 +138,17 @@ const App = (() => {
         UI.setButtons(true, false);
         UI.setStatus('idle', '等待连接');
 
-        // Audio toggle hint
         UI.onAudioToggle(() => {
-            if (UI.isAudioEnabled()) {
-                UI.setCostHint('语音播报开启（费用较高）');
-            } else {
-                UI.setCostHint('仅文字回复（省费模式）');
-            }
+            UI.setCostHint(UI.isAudioEnabled()
+                ? '语音播报开启（费用较高）'
+                : '仅文字回复（省费模式）');
         });
         UI.setCostHint('语音播报开启（费用较高）');
 
-        console.log('AI 视觉对话助手 — 前端已加载');
+        console.log('AI 视觉对话助手 — 前端已加载 🚀');
     }
 
-    // ── Public API ─────────────────────────────────────────────────
-    return {
-        init,
-        get state() { return _state; },
-        get mediaStream() { return _mediaStream; },
-    };
+    return { init, get state() { return _state; }, get mediaStream() { return _mediaStream; } };
 })();
 
-// ── Bootstrap ──────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => App.init());
