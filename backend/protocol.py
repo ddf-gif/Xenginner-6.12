@@ -25,8 +25,9 @@ class QwenServerEvent:
     SESSION_UPDATED = "session.updated"
     SPEECH_STARTED = "input_audio_buffer.speech_started"
     SPEECH_STOPPED = "input_audio_buffer.speech_stopped"
-    TEXT_DELTA = "response.text.delta"
-    TEXT_DONE = "response.text.done"
+    # Qwen omni-flash-realtime uses audio_transcript events (not text.delta)
+    AUDIO_TRANSCRIPT_DELTA = "response.audio_transcript.delta"
+    AUDIO_TRANSCRIPT_DONE = "response.audio_transcript.done"
     AUDIO_DELTA = "response.audio.delta"
     AUDIO_DONE = "response.audio.done"
     RESPONSE_DONE = "response.done"

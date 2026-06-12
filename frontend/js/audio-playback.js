@@ -1,28 +1,25 @@
 /**
- * Audio playback pipeline.
- *
- * Decodes base64 PCM24 24kHz audio from Qwen, resamples to the
- * AudioContext sample rate, and plays through the default output device.
+ * Audio playback pipeline — decodes base64 PCM16 24kHz audio from Qwen.
  */
 const AudioPlayback = (() => {
     const QWEN_SAMPLE_RATE = 24000;
-    const AUTO_PLAY_SAMPLES = 12000; // ~0.5s at 24kHz — auto-play threshold
 
     let _audioCtx = null;
     let _pcmBuffer = new Int16Array(0);
-    let _pendingSource = null; // currently playing source
+    let _pendingSource = null;
     let _onPlayStart = null;
     let _onPlayEnd = null;
 
     function _ensureCtx() {
-        if (!_audioCtx) {
-            _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
+        if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         if (_audioCtx.state === 'suspended') _audioCtx.resume();
         return _audioCtx;
     }
 
-    /** Decode base64 PCM24 → Int16 and add to buffer. */
+    /**
+     * Add base64 PCM16 24kHz mono chunk.
+     * Qwen outputs PCM16 (2 bytes/sample), not PCM24.
+     */
     function addChunk(base64) {
         if (!base64) return;
         try {
@@ -30,27 +27,21 @@ const AudioPlayback = (() => {
             const bytes = new Uint8Array(binary.length);
             for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
 
-            const sampleCount = Math.floor(bytes.length / 3);
+            // PCM16: 2 bytes/sample, little-endian signed
+            const sampleCount = Math.floor(bytes.length / 2);
             const int16 = new Int16Array(sampleCount);
+            const view = new DataView(bytes.buffer);
             for (let i = 0; i < sampleCount; i++) {
-                let sample = bytes[i*3] | (bytes[i*3+1] << 8) | (bytes[i*3+2] << 16);
-                if (sample & 0x800000) sample |= ~0xFFFFFF;
-                int16[i] = sample >> 8;
+                int16[i] = view.getInt16(i * 2, true); // little-endian
             }
 
             const merged = new Int16Array(_pcmBuffer.length + int16.length);
             merged.set(_pcmBuffer);
             merged.set(int16, _pcmBuffer.length);
             _pcmBuffer = merged;
-
-            // Auto-play when enough audio buffered
-            if (_pcmBuffer.length >= AUTO_PLAY_SAMPLES && !_pendingSource) {
-                _playInternal();
-            }
         } catch (e) { console.error('AudioPlayback decode error:', e); }
     }
 
-    /** Manually trigger playback of all accumulated audio. */
     function play() {
         if (_pcmBuffer.length === 0) return;
         _playInternal();
@@ -76,14 +67,11 @@ const AudioPlayback = (() => {
         const source = ctx.createBufferSource();
         source.buffer = audioBuffer;
         source.connect(ctx.destination);
-
         if (_onPlayStart) _onPlayStart();
         _pendingSource = source;
         source.onended = () => {
             _pendingSource = null;
             if (_onPlayEnd) _onPlayEnd();
-            // If more audio arrived during playback, play it
-            if (_pcmBuffer.length >= AUTO_PLAY_SAMPLES) _playInternal();
         };
         source.start();
         _pcmBuffer = new Int16Array(0);

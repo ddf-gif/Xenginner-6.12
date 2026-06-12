@@ -18,6 +18,9 @@ const UI = (() => {
         audioToggle:    $('#audio-toggle'),
         costHint:       $('#cost-hint'),
         meterBar:       $('#meter-bar'),
+        subtitleBar:    $('#subtitle-bar'),
+        subtitleText:   $('#subtitle-text'),
+        subtitleToggle: $('#subtitle-toggle'),
     };
 
     // Current streaming AI message element (for text delta accumulation)
@@ -161,5 +164,18 @@ const UI = (() => {
         onAudioToggle,
         setCostHint,
         scrollToBottom,
+        // ── Subtitle ───────────────────────────────────────────
+        setSubtitle(text) {
+            refs.subtitleText.textContent = text || '';
+        },
+        clearSubtitle() {
+            refs.subtitleText.textContent = '';
+        },
+        isSubtitleEnabled() {
+            return refs.subtitleToggle.checked;
+        },
+        onSubtitleToggle(fn) {
+            refs.subtitleToggle.addEventListener('change', fn);
+        },
     };
 })();

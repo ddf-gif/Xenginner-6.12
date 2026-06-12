@@ -123,28 +123,47 @@ async def websocket_endpoint(ws: WebSocket):
 
 async def _relay_qwen_event(ws: WebSocket, event_type: str, payload: dict):
     """Relay Qwen server events back to the browser."""
+    # Track if we've sent "speaking" for this response round
+    if not hasattr(_relay_qwen_event, '_speaking_sent'):
+        _relay_qwen_event._speaking_sent = False
+
     try:
+        logger.info("Qwen event: %s keys=%s", event_type, list(payload.keys())[:5])
+
         if event_type == QwenServerEvent.SPEECH_STARTED:
-            await ws.send_text(
-                make_browser_message(BackendEvent.STATUS, state=StatusState.LISTENING)
-            )
+            _relay_qwen_event._speaking_sent = False
 
         elif event_type == QwenServerEvent.SPEECH_STOPPED:
             await ws.send_text(
                 make_browser_message(BackendEvent.STATUS, state=StatusState.THINKING)
             )
 
-        elif event_type == QwenServerEvent.TEXT_DELTA:
-            await ws.send_text(
-                make_browser_message(BackendEvent.TEXT_DELTA, text=payload.get("delta", ""))
-            )
+        elif event_type == QwenServerEvent.AUDIO_TRANSCRIPT_DELTA:
+            # AI response transcript text → show as subtitle & chat
+            if not _relay_qwen_event._speaking_sent:
+                await ws.send_text(
+                    make_browser_message(BackendEvent.STATUS, state=StatusState.SPEAKING)
+                )
+                _relay_qwen_event._speaking_sent = True
+            # Try multiple possible field names for the text content
+            logger.info("TRANSCRIPT payload: %s", json.dumps(payload, ensure_ascii=False)[:200])
+            text = payload.get("delta") or payload.get("text") or payload.get("transcript") or ""
+            if text:
+                await ws.send_text(
+                    make_browser_message(BackendEvent.TEXT_DELTA, text=text)
+                )
 
-        elif event_type == QwenServerEvent.TEXT_DONE:
+        elif event_type == QwenServerEvent.AUDIO_TRANSCRIPT_DONE:
             await ws.send_text(
-                make_browser_message(BackendEvent.TEXT_DONE, text=payload.get("text", ""))
+                make_browser_message(BackendEvent.TEXT_DONE, text=payload.get("transcript", ""))
             )
 
         elif event_type == QwenServerEvent.AUDIO_DELTA:
+            if not _relay_qwen_event._speaking_sent:
+                await ws.send_text(
+                    make_browser_message(BackendEvent.STATUS, state=StatusState.SPEAKING)
+                )
+                _relay_qwen_event._speaking_sent = True
             await ws.send_text(
                 make_browser_message(BackendEvent.AUDIO_DELTA, data=payload.get("delta", ""))
             )
@@ -153,6 +172,7 @@ async def _relay_qwen_event(ws: WebSocket, event_type: str, payload: dict):
             await ws.send_text(make_browser_message(BackendEvent.AUDIO_DONE))
 
         elif event_type == QwenServerEvent.RESPONSE_DONE:
+            _relay_qwen_event._speaking_sent = False
             await ws.send_text(
                 make_browser_message(BackendEvent.STATUS, state=StatusState.LISTENING)
             )

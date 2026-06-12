@@ -7,7 +7,7 @@
  *
  * Usage:
  *   const vc = VideoCapture();
- *   vc.onFrame = (base64jpeg) => { /* send via WS */ };
+ *   vc.onFrame = (base64jpeg) => { ... };
  *   await vc.start(videoElement, canvasElement);
  *   vc.stop();
  */
@@ -70,12 +70,6 @@ const VideoCapture = (() => {
         _ctx = null;
         console.log(`VideoCapture stopped (${_frameCount} frames captured)`);
     }
-
-    // ── Callback setters ──────────────────────────────────────────
-    Object.defineProperty(self, 'onFrame', {
-        set(fn) { _onFrame = fn; },
-        get() { return _onFrame; },
-    });
 
     // ── Internal: frame capture ────────────────────────────────────
     function _captureFrame() {

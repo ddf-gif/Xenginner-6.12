@@ -21,6 +21,9 @@
                 <div class="video-wrapper">
                     <video id="camera-preview" autoplay playsinline muted></video>
                     <canvas id="capture-canvas" style="display:none;"></canvas>
+                    <div id="subtitle-bar" class="subtitle-bar">
+                        <span id="subtitle-text"></span>
+                    </div>
                     <div id="permission-overlay" class="permission-overlay">
                         <div class="permission-icon">📷</div>
                         <p>点击「开始对话」授权摄像头与麦克风</p>
@@ -53,6 +56,11 @@
                         <input type="checkbox" id="audio-toggle" checked>
                         <span class="toggle-switch"></span>
                         <span class="toggle-text">语音播报</span>
+                    </label>
+                    <label class="toggle-label" title="在视频上显示 AI 回复字幕">
+                        <input type="checkbox" id="subtitle-toggle" checked>
+                        <span class="toggle-switch"></span>
+                        <span class="toggle-text">字幕</span>
                     </label>
                     <span class="cost-hint" id="cost-hint"></span>
                 </div>
