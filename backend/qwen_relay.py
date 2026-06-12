@@ -46,14 +46,17 @@ class QwenRelayClient:
         await client.disconnect()
     """
 
-    def __init__(self, on_event: Optional[EventHandler] = None):
+    def __init__(self, on_event: Optional[EventHandler] = None,
+                 on_restart: Optional[Callable[[], None]] = None):
         self._ws: Optional[ClientConnection] = None
         self._on_event = on_event
+        self._on_restart = on_restart
         self._connected = False
         self._round_count = 0
         self._last_activity = 0.0
         self._listen_task: Optional[asyncio.Task] = None
         self._idle_task: Optional[asyncio.Task] = None
+        self._session_instructions = "你是AI视觉助手，请用中文简洁回答用户的问题。"
 
     # ── Connection lifecycle ─────────────────────────────────────────
 
@@ -76,8 +79,9 @@ class QwenRelayClient:
             self._last_activity = asyncio.get_event_loop().time()
             logger.info("Connected to Qwen Realtime API")
 
-            # Start listener
+            # Start listener and idle watchdog
             self._listen_task = asyncio.create_task(self._listen_loop())
+            self._idle_task = asyncio.create_task(self._idle_watchdog())
             return True
 
         except Exception as exc:
@@ -130,6 +134,7 @@ class QwenRelayClient:
             temperature=temperature,
             max_tokens=max_tokens,
         )
+        self._session_instructions = instructions
         msg = make_qwen_message(QwenEvent.SESSION_UPDATE, **config)
         await self._send_raw(msg)
         logger.info("Sent session.update (instructions=%d chars)", len(instructions))
@@ -166,6 +171,49 @@ class QwenRelayClient:
         await self._send_raw(msg)
         logger.info("Sent response.cancel")
 
+    async def restart_session(self):
+        """Restart the Qwen session (for 8-round limit or error recovery)."""
+        logger.info("Restarting Qwen session (round %d/%d)", self._round_count, MAX_ROUNDS)
+        # Disconnect old session
+        if self._ws:
+            try:
+                await self._ws.close()
+            except Exception:
+                pass
+            self._ws = None
+        if self._listen_task:
+            self._listen_task.cancel()
+            self._listen_task = None
+
+        # Reconnect with same instructions
+        connected = await self.connect()
+        if connected:
+            await self.send_session_update(instructions=self._session_instructions)
+            if self._on_restart:
+                self._on_restart()
+            logger.info("Session restarted successfully")
+            return True
+        return False
+
+    async def _idle_watchdog(self):
+        """Monitor idle time and disconnect if inactive too long."""
+        try:
+            while self._connected:
+                await asyncio.sleep(10)
+                idle = asyncio.get_event_loop().time() - self._last_activity
+                if idle > MAX_IDLE_SECONDS:
+                    logger.warning("Idle timeout: %.0fs > %ds, disconnecting",
+                                   idle, MAX_IDLE_SECONDS)
+                    self._connected = False
+                    if self._on_event:
+                        self._on_event(QwenServerEvent.ERROR, {
+                            "code": "idle_timeout",
+                            "message": f"会话空闲超时（{MAX_IDLE_SECONDS}秒），已自动断开",
+                        })
+                    break
+        except asyncio.CancelledError:
+            pass
+
     # ── Internal ──────────────────────────────────────────────────────
 
     async def _send_raw(self, message: str):
@@ -190,12 +238,14 @@ class QwenRelayClient:
                 event_type = event.get("type", "")
                 logger.debug("Qwen event: %s", event_type)
 
-                # Track rounds
+                # Track rounds and auto-restart near limit
                 if event_type == QwenServerEvent.RESPONSE_DONE:
                     self._round_count += 1
-                    logger.info(
-                        "Round %d/%d completed", self._round_count, MAX_ROUNDS
-                    )
+                    logger.info("Round %d/%d completed", self._round_count, MAX_ROUNDS)
+
+                    if self._round_count >= MAX_ROUNDS - 1:
+                        logger.warning("Approaching round limit, restarting session...")
+                        asyncio.create_task(self.restart_session())
 
                 # Dispatch to callback
                 if self._on_event:
