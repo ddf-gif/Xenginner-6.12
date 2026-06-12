@@ -7,7 +7,7 @@
  *
  * Usage:
  *   const ac = AudioCapture();
- *   ac.onChunk = (base64data) => { /* send via WS */ };
+ *   ac.onChunk = (base64data) => { ... };
  *   await ac.start(mediaStream);
  *   ac.stop();
  */
@@ -87,17 +87,6 @@ const AudioCapture = (() => {
 
         console.log('AudioCapture stopped');
     }
-
-    // ── Callback setters ──────────────────────────────────────────
-    Object.defineProperty(self, 'onChunk', {
-        set(fn) { _onChunk = fn; },
-        get() { return _onChunk; },
-    });
-
-    Object.defineProperty(self, 'onLevel', {
-        set(fn) { _onLevel = fn; },
-        get() { return _onLevel; },
-    });
 
     // ── Internal: audio processing ─────────────────────────────────
     function _onAudioProcess(event) {

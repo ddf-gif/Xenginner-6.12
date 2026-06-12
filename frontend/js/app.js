@@ -9,6 +9,8 @@ const App = (() => {
     let _mediaStream = null;
     let _ws = null;
     let _audioOut = null;
+    let _muted = false;  // mute mic while AI is speaking (echo prevention)
+    let _subtitleText = '';  // accumulated subtitle text
 
     // ── Media ───────────────────────────────────────────────────────
     async function requestMedia() {
@@ -46,15 +48,23 @@ const App = (() => {
         switch (type) {
         case 'status':
             UI.setStatus(payload.state);
+            // Mute mic while AI is thinking/speaking to prevent echo loop
             if (payload.state === 'listening') {
-                // Ready for next round
+                _muted = false;
+            } else if (payload.state === 'speaking' || payload.state === 'thinking') {
+                _muted = true;
             }
             break;
         case 'text_delta':
             UI.appendAiText(payload.text || '');
+            if (UI.isSubtitleEnabled()) {
+                _subtitleText += payload.text || '';
+                UI.setSubtitle(_subtitleText);
+            }
             break;
         case 'text_done':
             UI.finishAiBubble();
+            _subtitleText = '';  // reset for next round
             break;
         case 'audio_delta':
             if (UI.isAudioEnabled()) {
@@ -62,7 +72,8 @@ const App = (() => {
             }
             break;
         case 'audio_done':
-            if (UI.isAudioEnabled()) {
+            // Auto-play already triggered; just ensure final flush
+            if (UI.isAudioEnabled() && _audioOut.bufferLength > 0) {
                 _audioOut.play();
             }
             break;
@@ -97,7 +108,7 @@ const App = (() => {
         // 4. Start audio capture
         await AudioCapture.start(_mediaStream);
         AudioCapture.onChunk = (base64) => {
-            if (_ws && _ws.isConnected) _ws.send({ type: 'audio', data: base64 });
+            if (!_muted && _ws && _ws.isConnected) _ws.send({ type: 'audio', data: base64 });
         };
         AudioCapture.onLevel = (level) => UI.setMeterLevel(level);
 
@@ -128,6 +139,8 @@ const App = (() => {
         _state = State.IDLE;
         UI.setStatus('idle', '等待连接');
         UI.setButtons(true, false);
+        UI.clearSubtitle();
+        _subtitleText = '';
         UI.addSystemMessage('对话已结束。');
     }
 

@@ -4,7 +4,7 @@
  * Manages browser↔backend WebSocket connection with exponential backoff
  * reconnection, offline message queuing, and event dispatching.
  */
-const WsClient = ((url) => {
+function WsClient(url) {
     const RECONNECT_BASE_MS = 1000;
     const RECONNECT_MAX_MS = 30000;
     const RECONNECT_MAX_ATTEMPTS = 10;
@@ -86,4 +86,4 @@ const WsClient = ((url) => {
         set onStatusChange(fn) { _onStatusChange = fn; },
         get isConnected() { return _ws && _ws.readyState === WebSocket.OPEN; },
     };
-});
+}
