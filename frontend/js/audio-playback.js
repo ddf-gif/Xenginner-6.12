@@ -6,9 +6,11 @@
  */
 const AudioPlayback = (() => {
     const QWEN_SAMPLE_RATE = 24000;
+    const AUTO_PLAY_SAMPLES = 12000; // ~0.5s at 24kHz — auto-play threshold
 
     let _audioCtx = null;
     let _pcmBuffer = new Int16Array(0);
+    let _pendingSource = null; // currently playing source
     let _onPlayStart = null;
     let _onPlayEnd = null;
 
@@ -20,9 +22,7 @@ const AudioPlayback = (() => {
         return _audioCtx;
     }
 
-    /**
-     * Add a base64-encoded PCM24 24kHz mono audio chunk.
-     */
+    /** Decode base64 PCM24 → Int16 and add to buffer. */
     function addChunk(base64) {
         if (!base64) return;
         try {
@@ -30,7 +30,6 @@ const AudioPlayback = (() => {
             const bytes = new Uint8Array(binary.length);
             for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
 
-            // PCM24: 3 bytes/sample, little-endian signed 24-bit → Int16
             const sampleCount = Math.floor(bytes.length / 3);
             const int16 = new Int16Array(sampleCount);
             for (let i = 0; i < sampleCount; i++) {
@@ -43,14 +42,21 @@ const AudioPlayback = (() => {
             merged.set(_pcmBuffer);
             merged.set(int16, _pcmBuffer.length);
             _pcmBuffer = merged;
+
+            // Auto-play when enough audio buffered
+            if (_pcmBuffer.length >= AUTO_PLAY_SAMPLES && !_pendingSource) {
+                _playInternal();
+            }
         } catch (e) { console.error('AudioPlayback decode error:', e); }
     }
 
-    /**
-     * Play accumulated audio, resampling from 24kHz to output rate.
-     */
+    /** Manually trigger playback of all accumulated audio. */
     function play() {
         if (_pcmBuffer.length === 0) return;
+        _playInternal();
+    }
+
+    function _playInternal() {
         const ctx = _ensureCtx();
         const ratio = ctx.sampleRate / QWEN_SAMPLE_RATE;
         const dstLen = Math.floor(_pcmBuffer.length * ratio);
@@ -70,13 +76,20 @@ const AudioPlayback = (() => {
         const source = ctx.createBufferSource();
         source.buffer = audioBuffer;
         source.connect(ctx.destination);
+
         if (_onPlayStart) _onPlayStart();
-        source.onended = () => { if (_onPlayEnd) _onPlayEnd(); };
+        _pendingSource = source;
+        source.onended = () => {
+            _pendingSource = null;
+            if (_onPlayEnd) _onPlayEnd();
+            // If more audio arrived during playback, play it
+            if (_pcmBuffer.length >= AUTO_PLAY_SAMPLES) _playInternal();
+        };
         source.start();
         _pcmBuffer = new Int16Array(0);
     }
 
-    function clear() { _pcmBuffer = new Int16Array(0); }
+    function clear() { _pcmBuffer = new Int16Array(0); _pendingSource = null; }
     function destroy() { clear(); if (_audioCtx) { _audioCtx.close().catch(() => {}); _audioCtx = null; } }
 
     return {
