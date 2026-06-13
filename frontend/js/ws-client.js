@@ -11,7 +11,7 @@ function WsClient(url) {
     const QUEUE_MAX_SIZE = 200;
 
     let _ws = null;
-    let _url = url || `ws://${location.host}/ws`;
+    let _url = url || `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/ws`;
     let _reconnectAttempts = 0;
     let _reconnectTimer = null;
     let _intentionalClose = false;
