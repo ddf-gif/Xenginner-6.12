@@ -42,6 +42,14 @@ html,body{height:100%;font-family:var(--font);font-size:14px;line-height:1.5;ove
 .scene-emoji{font-size:1.8rem;flex-shrink:0;width:44px;height:44px;display:grid;place-items:center;background:oklch(0.96 0 0);border-radius:10px}
 .scene-text h3{font-size:.78rem;font-weight:600;color:oklch(0.15 0 0);margin-bottom:2px}
 .scene-text p{font-size:.64rem;color:oklch(0.48 0 0);line-height:1.4}
+/* Mode selector */
+.mode-select{margin-bottom:20px}
+.mode-label{display:block;font-size:.7rem;color:oklch(0.45 0 0);margin-bottom:8px}
+.mode-options{display:inline-flex;gap:4px;background:oklch(0.93 0 0);border:1px solid oklch(0.88 0 0);border-radius:8px;padding:3px}
+.mode-btn{font-family:var(--font);font-size:.8rem;padding:8px 20px;border:none;border-radius:6px;background:transparent;color:oklch(0.40 0 0);cursor:pointer;transition:all .15s;font-weight:500}
+.mode-btn:hover{color:oklch(0.15 0 0)}
+.mode-btn.active{background:oklch(1 0 0);color:oklch(0.15 0 0);font-weight:600;box-shadow:0 1px 3px oklch(0 0 0/.08)}
+
 .role-select{margin-bottom:28px}
 .role-label{display:block;font-size:.7rem;color:oklch(0.45 0 0);margin-bottom:8px}
 .role-options{display:inline-flex;flex-wrap:wrap;justify-content:center;gap:2px;background:oklch(0.93 0 0);border:1px solid oklch(0.88 0 0);border-radius:8px;padding:3px;max-width:100%}
@@ -165,6 +173,20 @@ html,body{height:100%;font-family:var(--font);font-size:14px;line-height:1.5;ove
 .status-label[data-state="thinking"]{color:var(--warning)}
 .status-label[data-state="speaking"]{color:var(--primary)}
 .status-label[data-state="error"]{color:var(--danger)}
+
+/* ── Mobile fullscreen mode ──────────────────────────────────── */
+.app[data-mode="mobile"] .app-body{display:block}
+.app[data-mode="mobile"] .camera-float{position:fixed;inset:0;width:100%!important;height:100%!important;border-radius:0;border:none;z-index:5}
+.app[data-mode="mobile"] .camera-float-bar{display:none}
+.app[data-mode="mobile"] .camera-resize-handle{display:none}
+.app[data-mode="mobile"] .chat-panel{position:fixed;bottom:0;left:0;right:0;z-index:10;max-height:40vh;background:oklch(0.98 0 0/.95);border-radius:16px 16px 0 0;border-top:1px solid oklch(0.88 0 0);box-shadow:0 -4px 20px oklch(0 0 0/.1)}
+.app[data-mode="mobile"] .chat-log{max-height:30vh;padding:12px}
+.app[data-mode="mobile"] .chat-foot{padding:8px 12px;border-radius:0 0 16px 16px}
+.app[data-mode="mobile"] .camera-subtitle{display:block!important;position:absolute;bottom:80px;left:16px;right:16px;z-index:6;background:oklch(0 0 0/.7);color:oklch(1 0 0);font-size:.9rem;padding:10px 16px;border-radius:8px;text-align:center}
+.app[data-mode="mobile"] .waveform{bottom:120px}
+.app[data-mode="mobile"] .camera-placeholder{font-size:.8rem}
+.app[data-mode="mobile"] .topbar-toggles .tgl:first-child{display:flex} /* show CC toggle */
+.app[data-mode="mobile"] .msg{font-size:.8rem}
 
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 @media(max-width:720px){
