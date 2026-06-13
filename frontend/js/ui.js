@@ -42,6 +42,8 @@ const UI = (() => {
         waveform:       $('#waveform'),
         particles:      $('#particles'),
         roleOptions:    $('#role-options'),
+        modeOptions:    $('#mode-options'),
+        app:           $('#app'),
         quickAsks:      $('#quick-asks'),
         miniMascot:     $('#mini-mascot'),
     };

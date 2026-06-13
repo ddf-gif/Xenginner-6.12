@@ -87,6 +87,15 @@
             </div>
         </div>
 
+        <!-- 设备模式选择 -->
+        <div class="mode-select">
+            <span class="mode-label">使用设备</span>
+            <div class="mode-options" id="mode-options">
+                <button class="mode-btn active" data-mode="desktop">🖥 电脑端</button>
+                <button class="mode-btn" data-mode="mobile">📱 手机端</button>
+            </div>
+        </div>
+
         <button id="btn-enter" class="enter-btn" type="button">
             <span>开始对话</span>
         </button>
@@ -97,7 +106,7 @@
 <!-- ================================================================ -->
 <!--  CONVERSATION                                                   -->
 <!-- ================================================================ -->
-<div id="app" class="app" inert hidden>
+<div id="app" class="app" inert hidden data-mode="desktop">
 
     <!-- Particle canvas -->
     <canvas id="particles" class="particles"></canvas>

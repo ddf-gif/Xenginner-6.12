@@ -71,7 +71,15 @@ const App = (() => {
     async function switchCamera(){_facingMode=_facingMode==='user'?'environment':'user';if(_mediaStream){_mediaStream.getVideoTracks().forEach(t=>t.stop());const newStream=await navigator.mediaDevices.getUserMedia({video:{width:{ideal:1280},height:{ideal:720},facingMode:_facingMode},audio:false});const vt=newStream.getVideoTracks()[0];const at=_mediaStream.getAudioTracks();_mediaStream=newStream;at.forEach(t=>_mediaStream.addTrack(t));UI.refs.cameraPreview.srcObject=_mediaStream;if(!_cameraOn)vt.enabled=false}UI.addSystemMessage(_facingMode==='environment'?'已切换后置摄像头':'已切换前置摄像头')}
 
     // ── Init ──────────────────────────────────────────────────────
+    let _deviceMode='desktop';
     function init(){
+        // Mode toggle
+        UI.refs.modeOptions?.addEventListener('click',e=>{
+            const btn=e.target.closest('.mode-btn');if(!btn)return;
+            UI.refs.modeOptions.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('active'));
+            btn.classList.add('active');_deviceMode=btn.dataset.mode;
+            UI.refs.app?.setAttribute('data-mode',_deviceMode);
+        });
         UI.refs.roleOptions.addEventListener('click',e=>{const btn=e.target.closest('.role-btn');if(!btn)return;UI.refs.roleOptions.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');_selectedRole=btn.dataset.role});
         UI.refs.quickAsks.addEventListener('click',e=>{const btn=e.target.closest('.quick-btn');if(!btn||_state!==State.RUNNING)return;UI.addUserSpeech('💡 试试说: '+btn.dataset.q)});
         UI.refs.btnEnter.addEventListener('click',()=>{UI.showConversation();start()});
