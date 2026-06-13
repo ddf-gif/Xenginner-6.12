@@ -15,39 +15,81 @@
 <!--  LANDING                                                        -->
 <!-- ================================================================ -->
 <main id="landing" class="landing" aria-label="首页">
-    <div class="landing-glow"></div>
+    <!-- Decorative blobs -->
+    <div class="deco-blob deco-blob--1"></div>
+    <div class="deco-blob deco-blob--2"></div>
+    <div class="deco-blob deco-blob--3"></div>
 
     <div class="landing-body">
+        <!-- Mascot -->
+        <div class="mascot mascot--landing" aria-hidden="true">
+            <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="60" cy="55" r="42" fill="oklch(0.15 0 0)" stroke="oklch(0.20 0 0)" stroke-width="2"/>
+                <circle cx="42" cy="46" r="9" fill="oklch(0.98 0 0)"/>
+                <circle cx="78" cy="46" r="9" fill="oklch(0.98 0 0)"/>
+                <circle cx="44" cy="46" r="5" fill="oklch(0.15 0 0)"/>
+                <circle cx="80" cy="46" r="5" fill="oklch(0.15 0 0)"/>
+                <circle cx="40" cy="44" r="2" fill="white"/>
+                <circle cx="76" cy="44" r="2" fill="white"/>
+                <ellipse cx="60" cy="68" rx="8" ry="5" fill="var(--primary)"/>
+                <path d="M28 28 L38 18 M92 28 L82 18" stroke="oklch(0.20 0 0)" stroke-width="2" stroke-linecap="round"/>
+                <rect x="30" y="72" width="10" height="24" rx="5" fill="oklch(0.15 0 0)"/>
+                <rect x="80" y="72" width="10" height="24" rx="5" fill="oklch(0.15 0 0)"/>
+                <path d="M52 85 Q60 95 68 85" stroke="var(--primary)" stroke-width="2" fill="none" stroke-linecap="round"/>
+                <circle class="mascot-blush" cx="34" cy="56" r="4" fill="var(--primary)" opacity="0.5"/>
+                <circle class="mascot-blush" cx="86" cy="56" r="4" fill="var(--primary)" opacity="0.5"/>
+            </svg>
+        </div>
+
         <header class="landing-header">
-            <p class="landing-kicker">Qwen Omni Realtime</p>
             <h1 class="landing-title">
-                <span class="title-line">AI 视觉</span>
-                <span class="title-line title-line--accent">对话助手</span>
+                <span class="title-line">看见世界，</span>
+                <span class="title-line title-accent">听见未来</span>
             </h1>
             <p class="landing-desc">
-                让 AI 通过你的摄像头看见世界，<br>用自然语言与你实时交流。
+                让你的摄像头成为 AI 的眼睛，<br>用自然对话探索无限可能。
             </p>
         </header>
 
-        <!-- Role selector -->
-        <div class="role-select">
-            <span class="role-label">AI 角色</span>
-            <div class="role-options" id="role-options">
-                <button class="role-btn active" data-role="assistant">🤖 通用助手</button>
-                <button class="role-btn" data-role="teacher">📚 英语老师</button>
-                <button class="role-btn" data-role="interviewer">💼 面试官</button>
-                <button class="role-btn" data-role="friend">💬 朋友闲聊</button>
+        <div class="landing-cards">
+            <div class="l-card">
+                <div class="l-card-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="9"/><circle cx="12" cy="2" r="1.5"/></svg>
+                </div>
+                <h3>视觉理解</h3>
+                <p>实时分析摄像头画面中的物体、场景与文字</p>
+            </div>
+            <div class="l-card">
+                <div class="l-card-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
+                </div>
+                <h3>语音对话</h3>
+                <p>自然语音交互，边说边听边回应，像与真人对话</p>
+            </div>
+            <div class="l-card">
+                <div class="l-card-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                </div>
+                <h3>智能优化</h3>
+                <p>自适应帧率 + 静音检测，最大化节省 API 费用</p>
             </div>
         </div>
 
-        <div class="landing-features">
-            <div class="feat"><span class="feat-icon">&#9673;</span><span>实时视觉理解</span></div>
-            <div class="feat"><span class="feat-icon">&#9673;</span><span>自然语音对话</span></div>
-            <div class="feat"><span class="feat-icon">&#9673;</span><span>智能成本控制</span></div>
+        <div class="role-select">
+            <span class="role-label">选择 AI 角色</span>
+            <div class="role-options" id="role-options">
+                <button class="role-btn active" data-role="assistant">助手</button>
+                <button class="role-btn" data-role="teacher">英语老师</button>
+                <button class="role-btn" data-role="interviewer">面试官</button>
+                <button class="role-btn" data-role="friend">闲聊</button>
+            </div>
         </div>
 
-        <button id="btn-enter" class="enter-btn" type="button">开始对话</button>
-        <p class="landing-footnote">需要授权摄像头与麦克风权限</p>
+        <button id="btn-enter" class="enter-btn" type="button">
+            开始对话
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+        <p class="landing-footnote">需要授权摄像头与麦克风</p>
     </div>
 </main>
 
@@ -81,54 +123,7 @@
     <!-- Body -->
     <div class="app-body">
 
-        <!-- Camera panel -->
-        <section class="camera-panel" aria-label="摄像头画面">
-            <div id="camera-frame" class="camera-frame">
-                <video id="camera-preview" autoplay playsinline muted></video>
-                <canvas id="capture-canvas" hidden></canvas>
-
-                <!-- HUD overlay -->
-                <div class="hud-corners" aria-hidden="true">
-                    <span class="hud-c hud-tl"></span><span class="hud-c hud-tr"></span>
-                    <span class="hud-c hud-bl"></span><span class="hud-c hud-br"></span>
-                </div>
-                <div class="hud-crosshair" aria-hidden="true"></div>
-                <div class="hud-scanlines" aria-hidden="true"></div>
-
-                <div id="permission-overlay" class="camera-placeholder">
-                    <span class="placeholder-ring" aria-hidden="true"></span>
-                    <p>点击下方按钮开始对话</p>
-                </div>
-
-                <button id="btn-interrupt" class="interrupt-btn" type="button" hidden>打断</button>
-
-                <div id="subtitle-bar" class="camera-subtitle" aria-live="polite">
-                    <span id="subtitle-text"></span>
-                </div>
-
-                <!-- Audio waveform -->
-                <canvas id="waveform" class="waveform" aria-hidden="true"></canvas>
-            </div>
-
-            <!-- Quick questions -->
-            <div class="quick-asks" id="quick-asks">
-                <button class="quick-btn" data-q="你看到了什么？">你看到了什么？</button>
-                <button class="quick-btn" data-q="描述一下这个场景">描述一下这个场景</button>
-                <button class="quick-btn" data-q="我手里拿的是什么？">我手里拿的是什么？</button>
-            </div>
-
-            <div class="camera-actions">
-                <button id="btn-start" class="act act--primary" type="button">开始对话</button>
-                <button id="btn-camera" class="act" disabled type="button" title="开关摄像头">摄像头</button>
-                <button id="btn-stop" class="act act--stop" disabled type="button">停止</button>
-            </div>
-
-            <div class="audio-meter" id="audio-meter" aria-hidden="true">
-                <div class="audio-meter-fill" id="meter-bar"></div>
-            </div>
-        </section>
-
-        <!-- Chat panel -->
+        <!-- Chat panel (main area) -->
         <section class="chat-panel" aria-label="对话记录">
             <div class="chat-log" id="chat-messages">
                 <div class="msg msg--system">
@@ -136,9 +131,53 @@
                 </div>
             </div>
             <div class="chat-foot">
+                <!-- Quick questions inline -->
+                <div class="quick-asks" id="quick-asks">
+                    <button class="quick-btn" data-q="你看到了什么？">你看到了什么？</button>
+                    <button class="quick-btn" data-q="描述一下这个场景">描述场景</button>
+                    <button class="quick-btn" data-q="我手里拿的是什么？">这是什么</button>
+                </div>
+                <div class="chat-actions">
+                    <button id="btn-start" class="act act--primary" type="button">开始对话</button>
+                    <button id="btn-interrupt" class="act act--interrupt" type="button" hidden>打断</button>
+                    <button id="btn-stop" class="act act--stop" disabled type="button">停止</button>
+                </div>
+                <div class="audio-meter" id="audio-meter" aria-hidden="true">
+                    <div class="audio-meter-fill" id="meter-bar"></div>
+                </div>
                 <span class="chat-foot-hint" id="cost-hint">语音播报开启</span>
             </div>
         </section>
+
+        <!-- Camera: floating draggable+resizable window -->
+        <div id="camera-float" class="camera-float">
+            <div class="camera-float-bar" id="camera-drag-handle">
+                <span class="float-title">📷 摄像头</span>
+                <div class="float-bar-actions">
+                    <button id="btn-camera" class="float-btn" disabled title="开关摄像头">⏻</button>
+                    <button id="btn-resize-sm" class="float-btn float-btn--size" data-size="sm" title="小窗">◰</button>
+                    <button id="btn-resize-md" class="float-btn float-btn--size active" data-size="md" title="中窗">◱</button>
+                    <button id="btn-resize-lg" class="float-btn float-btn--size" data-size="lg" title="大窗">◲</button>
+                </div>
+            </div>
+            <div id="camera-frame" class="camera-frame">
+                <video id="camera-preview" autoplay playsinline muted></video>
+                <canvas id="capture-canvas" hidden></canvas>
+                <div class="hud-scanlines" aria-hidden="true"></div>
+                <div id="permission-overlay" class="camera-placeholder">
+                    <div class="mini-mascot" id="mini-mascot" aria-hidden="true">
+                        <svg viewBox="0 0 60 60" fill="none"><circle cx="30" cy="26" r="20" fill="oklch(0.20 0 0)" stroke="oklch(0.30 0 0)" stroke-width="1"/><circle cx="22" cy="22" r="5" fill="oklch(0.95 0 0)"/><circle cx="38" cy="22" r="5" fill="oklch(0.95 0 0)"/><circle cx="23" cy="22" r="2.5" fill="oklch(0.15 0 0)"/><circle cx="39" cy="22" r="2.5" fill="oklch(0.15 0 0)"/><ellipse cx="30" cy="34" rx="4" ry="2.5" fill="var(--primary)"/><path d="M14 12 L18 8 M46 12 L42 8" stroke="oklch(0.30 0 0)" stroke-width="1.5" stroke-linecap="round"/></svg>
+                    </div>
+                    <p>点击「开始对话」授权摄像头</p>
+                </div>
+                <div id="subtitle-bar" class="camera-subtitle" aria-live="polite">
+                    <span id="subtitle-text"></span>
+                </div>
+                <canvas id="waveform" class="waveform" aria-hidden="true"></canvas>
+                <div class="camera-resize-handle" id="camera-resize-handle"></div>
+            </div>
+        </div>
+    </div>
     </div>
 </div>
 

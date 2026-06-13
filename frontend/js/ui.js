@@ -13,6 +13,12 @@ const UI = (() => {
 
         cameraPreview:  $('#camera-preview'),
         cameraFrame:    $('#camera-frame'),
+        cameraFloat:    $('#camera-float'),
+        cameraDragHandle:$('#camera-drag-handle'),
+        cameraResizeHandle:$('#camera-resize-handle'),
+        btnResizeSm:    $('#btn-resize-sm'),
+        btnResizeMd:    $('#btn-resize-md'),
+        btnResizeLg:    $('#btn-resize-lg'),
         captureCanvas:  $('#capture-canvas'),
         placeholder:    $('#permission-overlay'),
         btnStart:       $('#btn-start'),
@@ -36,6 +42,7 @@ const UI = (() => {
         particles:      $('#particles'),
         roleOptions:    $('#role-options'),
         quickAsks:      $('#quick-asks'),
+        miniMascot:     $('#mini-mascot'),
     };
 
     let _aiBubble = null, _aiText = '';
@@ -61,7 +68,13 @@ const UI = (() => {
         refs.statusDot.setAttribute('data-state', state);
         refs.statusText.setAttribute('data-state', state);
         refs.statusText.textContent = map[state] || state;
-        refs.cameraFrame.setAttribute('data-state', state);
+        // Camera float glow
+        ['speaking','thinking'].forEach(c=>refs.cameraFloat?.classList.remove(c));
+        if(state==='speaking'||state==='thinking')refs.cameraFloat?.classList.add(state);
+        // Mini mascot
+        if (refs.miniMascot) {
+            refs.miniMascot.className = 'mini-mascot ' + state;
+        }
     }
 
     // ── Chat ───────────────────────────────────────────────────────
@@ -139,7 +152,11 @@ const UI = (() => {
 
     // ── Cost ───────────────────────────────────────────────────────
     function setCostHint(t) { refs.costHint.textContent = t; }
-    function showInterrupt(show) { if (show) refs.interruptBtn.removeAttribute('hidden'); else refs.interruptBtn.setAttribute('hidden',''); }
+    function showInterrupt(show) {
+        if (!refs.interruptBtn) return;
+        if (show) refs.interruptBtn.removeAttribute('hidden');
+        else refs.interruptBtn.setAttribute('hidden','');
+    }
     function setCostDisplay(text) { refs.costDisplay.textContent = text || ''; }
 
     // ── Helpers ────────────────────────────────────────────────────
