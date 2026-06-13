@@ -47,6 +47,16 @@ async def index():
     return {"status": "ok", "message": "Frontend not yet built. Place index.html in frontend/."}
 
 
+@app.get("/manifest.json")
+async def manifest():
+    return FileResponse(os.path.join(STATIC_DIR, "manifest.json"))
+
+
+@app.get("/sw.js")
+async def service_worker():
+    return FileResponse(os.path.join(STATIC_DIR, "sw.js"), media_type="application/javascript")
+
+
 # ── WebSocket endpoint ───────────────────────────────────────────────
 @app.websocket("/ws")
 async def websocket_endpoint(ws: WebSocket):
@@ -81,7 +91,8 @@ async def websocket_endpoint(ws: WebSocket):
             if msg_type == "start_session":
                 connected = await qwen.connect()
                 if connected:
-                    await qwen.send_session_update()
+                    instructions = msg.get("instructions", "你是AI视觉助手，请用中文简洁回答用户的问题。")
+                    await qwen.send_session_update(instructions=instructions)
                     await ws.send_text(
                         make_browser_message(BackendEvent.STATUS, state=StatusState.LISTENING)
                     )
@@ -130,7 +141,15 @@ async def _relay_qwen_event(ws: WebSocket, event_type: str, payload: dict):
     try:
         logger.info("Qwen event: %s keys=%s", event_type, list(payload.keys())[:5])
 
-        if event_type == QwenServerEvent.SPEECH_STARTED:
+        if event_type == QwenServerEvent.INPUT_TRANSCRIPTION_DONE:
+            # User's spoken words recognized → show in chat
+            transcript = payload.get("transcript", "")
+            if transcript:
+                await ws.send_text(
+                    make_browser_message("user_speech", text=transcript)
+                )
+
+        elif event_type == QwenServerEvent.SPEECH_STARTED:
             _relay_qwen_event._speaking_sent = False
 
         elif event_type == QwenServerEvent.SPEECH_STOPPED:
