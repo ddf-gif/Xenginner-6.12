@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  lens:
+    build: .
+    container_name: lens
+    ports:
+      - "3000:3000"
+    environment:
+      - QWEN_API_KEY=${QWEN_API_KEY:-your-api-key-here}
+    restart: unless-stopped
