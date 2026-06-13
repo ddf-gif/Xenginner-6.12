@@ -23,6 +23,7 @@ const UI = (() => {
         placeholder:    $('#permission-overlay'),
         btnStart:       $('#btn-start'),
         btnCamera:      $('#btn-camera'),
+        btnSwitchCam:   $('#btn-switch-cam'),
         btnStop:        $('#btn-stop'),
 
         statusDot:      $('#status-dot'),
@@ -45,7 +46,9 @@ const UI = (() => {
         miniMascot:     $('#mini-mascot'),
     };
 
-    let _aiBubble = null, _aiText = '';
+    let _aiBubble = null, _aiText = '', _typingEl = null, _welcomeEl = null;
+
+    const OWL_SVG = '<svg viewBox="0 0 30 30" fill="none"><circle cx="15" cy="14" r="10" fill="oklch(0.25 0 0)" stroke="oklch(0.35 0 0)" stroke-width="1"/><circle cx="11" cy="12" r="3" fill="oklch(0.95 0 0)"/><circle cx="19" cy="12" r="3" fill="oklch(0.95 0 0)"/><circle cx="11.5" cy="12" r="1.3" fill="oklch(0.15 0 0)"/><circle cx="19.5" cy="12" r="1.3" fill="oklch(0.15 0 0)"/><ellipse cx="15" cy="19" rx="2.5" ry="1.5" fill="var(--primary)"/></svg>';
 
     // ── Pages ──────────────────────────────────────────────────────
     function showConversation() {
@@ -86,10 +89,20 @@ const UI = (() => {
         scrollChat();
     }
     function startAiBubble() {
+        removeTyping();
+        removeWelcome();
+        // Row: avatar + bubble
+        const row = document.createElement('div');
+        row.className = 'msg-row';
+        const avatar = document.createElement('div');
+        avatar.className = 'msg-avatar';
+        avatar.innerHTML = OWL_SVG;
         _aiBubble = document.createElement('div');
         _aiBubble.className = 'msg msg--ai';
         _aiText = '';
-        refs.chatMessages.appendChild(_aiBubble);
+        row.appendChild(avatar);
+        row.appendChild(_aiBubble);
+        refs.chatMessages.appendChild(row);
         scrollChat();
     }
     function appendAiText(delta) {
@@ -105,6 +118,34 @@ const UI = (() => {
             _aiBubble = null; _aiText = '';
             scrollChat();
         }
+    }
+
+    // Typing indicator
+    function showTyping() {
+        removeWelcome();
+        const row = document.createElement('div'); row.className = 'msg-row';
+        const avatar = document.createElement('div'); avatar.className = 'msg-avatar'; avatar.innerHTML = OWL_SVG;
+        const bubble = document.createElement('div'); bubble.className = 'msg msg--ai msg--typing';
+        bubble.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
+        row.appendChild(avatar); row.appendChild(bubble);
+        refs.chatMessages.appendChild(row); scrollChat();
+        _typingEl = row;
+    }
+    function removeTyping() {
+        if (_typingEl) { _typingEl.remove(); _typingEl = null; }
+    }
+
+    // Welcome card
+    function showWelcome() {
+        if (_welcomeEl) return;
+        _welcomeEl = document.createElement('div');
+        _welcomeEl.className = 'welcome-card';
+        _welcomeEl.innerHTML = '<div class="welcome-card-icon">🦉</div><h3>AI 视觉对话助手已就绪</h3><p>直接说话或点击下方快捷提问开始交流</p>';
+        refs.chatMessages.appendChild(_welcomeEl);
+        scrollChat();
+    }
+    function removeWelcome() {
+        if (_welcomeEl) { _welcomeEl.remove(); _welcomeEl = null; }
     }
     function addUserSpeech(text) {
         const d = document.createElement('div');
@@ -168,6 +209,7 @@ const UI = (() => {
         showConversation, showLanding,
         setStatus, addSystemMessage, startAiBubble, appendAiText, finishAiBubble,
         addUserSpeech, addErrorMessage, setMeterLevel, hidePlaceholder, showPlaceholder,
+        showTyping, removeTyping, showWelcome, removeWelcome,
         setButtons, isAudioEnabled, isSubtitleEnabled, onAudioToggle,
         setSubtitle, clearSubtitle, setCostHint, showInterrupt, setCostDisplay,
     };

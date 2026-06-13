@@ -15,81 +15,82 @@
 <!--  LANDING                                                        -->
 <!-- ================================================================ -->
 <main id="landing" class="landing" aria-label="首页">
-    <!-- Decorative blobs -->
     <div class="deco-blob deco-blob--1"></div>
     <div class="deco-blob deco-blob--2"></div>
     <div class="deco-blob deco-blob--3"></div>
 
     <div class="landing-body">
-        <!-- Mascot -->
-        <div class="mascot mascot--landing" aria-hidden="true">
-            <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="60" cy="55" r="42" fill="oklch(0.15 0 0)" stroke="oklch(0.20 0 0)" stroke-width="2"/>
-                <circle cx="42" cy="46" r="9" fill="oklch(0.98 0 0)"/>
-                <circle cx="78" cy="46" r="9" fill="oklch(0.98 0 0)"/>
-                <circle cx="44" cy="46" r="5" fill="oklch(0.15 0 0)"/>
-                <circle cx="80" cy="46" r="5" fill="oklch(0.15 0 0)"/>
-                <circle cx="40" cy="44" r="2" fill="white"/>
-                <circle cx="76" cy="44" r="2" fill="white"/>
-                <ellipse cx="60" cy="68" rx="8" ry="5" fill="var(--primary)"/>
-                <path d="M28 28 L38 18 M92 28 L82 18" stroke="oklch(0.20 0 0)" stroke-width="2" stroke-linecap="round"/>
-                <rect x="30" y="72" width="10" height="24" rx="5" fill="oklch(0.15 0 0)"/>
-                <rect x="80" y="72" width="10" height="24" rx="5" fill="oklch(0.15 0 0)"/>
-                <path d="M52 85 Q60 95 68 85" stroke="var(--primary)" stroke-width="2" fill="none" stroke-linecap="round"/>
-                <circle class="mascot-blush" cx="34" cy="56" r="4" fill="var(--primary)" opacity="0.5"/>
-                <circle class="mascot-blush" cx="86" cy="56" r="4" fill="var(--primary)" opacity="0.5"/>
-            </svg>
-        </div>
-
         <header class="landing-header">
             <h1 class="landing-title">
-                <span class="title-line">看见世界，</span>
-                <span class="title-line title-accent">听见未来</span>
+                <span class="title-accent">AI 视觉助手</span>
             </h1>
-            <p class="landing-desc">
-                让你的摄像头成为 AI 的眼睛，<br>用自然对话探索无限可能。
-            </p>
+            <p class="landing-desc">解放双手，用声音和摄像头与世界互动</p>
         </header>
 
-        <div class="landing-cards">
-            <div class="l-card">
-                <div class="l-card-icon">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="9"/><circle cx="12" cy="2" r="1.5"/></svg>
+        <!-- Scene cards -->
+        <div class="scene-grid">
+            <div class="scene-card">
+                <span class="scene-emoji">🍳</span>
+                <div class="scene-text">
+                    <h3>辅助烹饪</h3>
+                    <p>做饭时满手是油，张嘴问"下一步放什么"</p>
                 </div>
-                <h3>视觉理解</h3>
-                <p>实时分析摄像头画面中的物体、场景与文字</p>
             </div>
-            <div class="l-card">
-                <div class="l-card-icon">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
+            <div class="scene-card">
+                <span class="scene-emoji">🔍</span>
+                <div class="scene-text">
+                    <h3>物品寻找</h3>
+                    <p>出门前找不到钥匙钱包，AI 帮你找</p>
                 </div>
-                <h3>语音对话</h3>
-                <p>自然语音交互，边说边听边回应，像与真人对话</p>
             </div>
-            <div class="l-card">
-                <div class="l-card-icon">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            <div class="scene-card">
+                <span class="scene-emoji">📖</span>
+                <div class="scene-text">
+                    <h3>学习助手</h3>
+                    <p>白板笔记、书本文字、代码报错，问就行</p>
                 </div>
-                <h3>智能优化</h3>
-                <p>自适应帧率 + 静音检测，最大化节省 API 费用</p>
+            </div>
+            <div class="scene-card">
+                <span class="scene-emoji">🔧</span>
+                <div class="scene-text">
+                    <h3>DIY 维修</h3>
+                    <p>修电器装家具，摄像头照着边做边问</p>
+                </div>
+            </div>
+            <div class="scene-card">
+                <span class="scene-emoji">👶</span>
+                <div class="scene-text">
+                    <h3>儿童教育</h3>
+                    <p>孩子指着东西问"这是什么"，AI 来答</p>
+                </div>
+            </div>
+            <div class="scene-card">
+                <span class="scene-emoji">♿</span>
+                <div class="scene-text">
+                    <h3>无障碍辅助</h3>
+                    <p>用声音感知环境，药品识别、物品辨认</p>
+                </div>
             </div>
         </div>
 
+        <!-- Role -->
         <div class="role-select">
-            <span class="role-label">选择 AI 角色</span>
+            <span class="role-label">AI 角色</span>
             <div class="role-options" id="role-options">
-                <button class="role-btn active" data-role="assistant">助手</button>
-                <button class="role-btn" data-role="teacher">英语老师</button>
-                <button class="role-btn" data-role="interviewer">面试官</button>
-                <button class="role-btn" data-role="friend">闲聊</button>
+                <button class="role-btn active" data-role="assistant">通用</button>
+                <button class="role-btn" data-role="teacher">老师</button>
+                <button class="role-btn" data-role="coach">教练</button>
+                <button class="role-btn" data-role="foodie">美食家</button>
+                <button class="role-btn" data-role="tech">极客</button>
+                <button class="role-btn" data-role="storyteller">故事</button>
+                <button class="role-btn" data-role="listener">倾听</button>
             </div>
         </div>
 
         <button id="btn-enter" class="enter-btn" type="button">
-            开始对话
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            <span>开始对话</span>
         </button>
-        <p class="landing-footnote">需要授权摄像头与麦克风</p>
+        <p class="landing-footnote">需要摄像头与麦克风权限</p>
     </div>
 </main>
 
@@ -152,8 +153,9 @@
         <!-- Camera: floating draggable+resizable window -->
         <div id="camera-float" class="camera-float">
             <div class="camera-float-bar" id="camera-drag-handle">
-                <span class="float-title">📷 摄像头</span>
+                <span class="float-title">📷</span>
                 <div class="float-bar-actions">
+                    <button id="btn-switch-cam" class="float-btn" title="切换前后摄像头" disabled>🔄</button>
                     <button id="btn-camera" class="float-btn" disabled title="开关摄像头">⏻</button>
                     <button id="btn-resize-sm" class="float-btn float-btn--size" data-size="sm" title="小窗">◰</button>
                     <button id="btn-resize-md" class="float-btn float-btn--size active" data-size="md" title="中窗">◱</button>
