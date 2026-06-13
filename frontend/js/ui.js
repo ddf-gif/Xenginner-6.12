@@ -1,181 +1,157 @@
 /**
- * UI helpers — DOM references and update functions.
- * Provides a clean API for other modules to update the UI.
+ * UI helpers — LENS design system.
+ * Uses data-state attributes for styling, hidden attribute for visibility.
  */
 const UI = (() => {
-    // ── DOM refs ───────────────────────────────────────────────────
-    const $ = (sel) => document.querySelector(sel);
+    const $ = s => document.querySelector(s);
 
     const refs = {
+        landing:        $('#landing'),
+        app:            $('#app'),
+        btnEnter:       $('#btn-enter'),
+        btnBack:        $('#btn-back'),
+
         cameraPreview:  $('#camera-preview'),
+        cameraFrame:    $('#camera-frame'),
         captureCanvas:  $('#capture-canvas'),
-        permissionOverlay: $('#permission-overlay'),
+        placeholder:    $('#permission-overlay'),
         btnStart:       $('#btn-start'),
+        btnCamera:      $('#btn-camera'),
         btnStop:        $('#btn-stop'),
+
         statusDot:      $('#status-dot'),
         statusText:     $('#status-text'),
+
         chatMessages:   $('#chat-messages'),
+
         audioToggle:    $('#audio-toggle'),
-        costHint:       $('#cost-hint'),
-        meterBar:       $('#meter-bar'),
-        subtitleBar:    $('#subtitle-bar'),
-        subtitleText:   $('#subtitle-text'),
         subtitleToggle: $('#subtitle-toggle'),
+
+        meterBar:       $('#meter-bar'),
+        subtitleText:   $('#subtitle-text'),
+        costHint:       $('#cost-hint'),
+        interruptBtn:   $('#btn-interrupt'),
+        costDisplay:    $('#cost-display'),
+        waveform:       $('#waveform'),
+        particles:      $('#particles'),
+        roleOptions:    $('#role-options'),
+        quickAsks:      $('#quick-asks'),
     };
 
-    // Current streaming AI message element (for text delta accumulation)
-    let _currentAiBubble = null;
-    let _currentTextContent = '';
+    let _aiBubble = null, _aiText = '';
 
-    // ── Status ─────────────────────────────────────────────────────
-    const statusClasses = ['listening', 'thinking', 'speaking', 'error', 'idle'];
-
-    function setStatus(state, text = '') {
-        const dot = refs.statusDot;
-        statusClasses.forEach(c => dot.classList.remove(c));
-        dot.classList.add(state);
-        refs.statusText.textContent = text || stateText(state);
-        // Also set status class on text for color
-        refs.statusText.className = '';
-        if (state) refs.statusText.classList.add(state);
-        // Video wrapper glow effect
-        const wrapper = document.querySelector('.video-wrapper');
-        if (wrapper) {
-            ['speaking', 'thinking'].forEach(c => wrapper.classList.remove(c));
-            if (state === 'speaking' || state === 'thinking') wrapper.classList.add(state);
-        }
+    // ── Pages ──────────────────────────────────────────────────────
+    function showConversation() {
+        refs.landing.setAttribute('hidden', '');
+        refs.app.removeAttribute('hidden');
+        refs.app.removeAttribute('inert');
+    }
+    function showLanding() {
+        refs.app.setAttribute('hidden', '');
+        refs.app.setAttribute('inert', '');
+        refs.landing.removeAttribute('hidden');
     }
 
-    function stateText(state) {
+    // ── Status ─────────────────────────────────────────────────────
+    function setStatus(state) {
         const map = {
-            listening: '正在聆听...',
-            thinking: '正在思考...',
-            speaking: '正在回复...',
-            error: '连接错误',
-            idle: '就绪',
-            connecting: '正在连接...',
+            listening:'正在聆听', thinking:'正在思考', speaking:'正在回复',
+            error:'连接错误', idle:'等待连接', connecting:'正在连接中'
         };
-        return map[state] || state;
+        refs.statusDot.setAttribute('data-state', state);
+        refs.statusText.setAttribute('data-state', state);
+        refs.statusText.textContent = map[state] || state;
+        refs.cameraFrame.setAttribute('data-state', state);
     }
 
     // ── Chat ───────────────────────────────────────────────────────
     function addSystemMessage(text) {
-        const div = document.createElement('div');
-        div.className = 'message system';
-        div.innerHTML = `<p>${text}</p>`;
-        refs.chatMessages.appendChild(div);
-        scrollToBottom();
+        const d = document.createElement('div');
+        d.className = 'msg msg--system';
+        d.innerHTML = `<p>${text}</p>`;
+        refs.chatMessages.appendChild(d);
+        scrollChat();
     }
-
     function startAiBubble() {
-        _currentAiBubble = document.createElement('div');
-        _currentAiBubble.className = 'message ai';
-        _currentTextContent = '';
-        refs.chatMessages.appendChild(_currentAiBubble);
-        scrollToBottom();
+        _aiBubble = document.createElement('div');
+        _aiBubble.className = 'msg msg--ai';
+        _aiText = '';
+        refs.chatMessages.appendChild(_aiBubble);
+        scrollChat();
     }
-
     function appendAiText(delta) {
-        if (!_currentAiBubble) startAiBubble();
-        _currentTextContent += delta;
-        _currentAiBubble.innerHTML = `<p>${escapeHtml(_currentTextContent)}</p>`;
-        scrollToBottom();
+        if (!_aiBubble) startAiBubble();
+        _aiText += delta;
+        _aiBubble.innerHTML = `<p>${esc(_aiText)}</p>`;
+        scrollChat();
     }
-
     function finishAiBubble() {
-        if (_currentAiBubble) {
-            const now = new Date();
-            const time = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
-            _currentAiBubble.innerHTML += `<div class="msg-time">${time}</div>`;
-            _currentAiBubble = null;
-            _currentTextContent = '';
-            scrollToBottom();
+        if (_aiBubble) {
+            const t = new Date();
+            _aiBubble.innerHTML += `<span class="msg-time">${pad(t.getHours())}:${pad(t.getMinutes())}</span>`;
+            _aiBubble = null; _aiText = '';
+            scrollChat();
+        }
+    }
+    function addUserSpeech(text) {
+        const d = document.createElement('div');
+        d.className = 'msg msg--user';
+        d.innerHTML = `<p>${esc(text)}</p>`;
+        refs.chatMessages.appendChild(d);
+        scrollChat();
+    }
+    function addErrorMessage(text) {
+        const d = document.createElement('div');
+        d.className = 'msg msg--system';
+        d.style.color = 'var(--danger)';
+        d.innerHTML = `<p>${text}</p>`;
+        refs.chatMessages.appendChild(d);
+        scrollChat();
+    }
+    function scrollChat() { refs.chatMessages.scrollTop = refs.chatMessages.scrollHeight; }
+
+    // ── Audio meter ────────────────────────────────────────────────
+    function setMeterLevel(l) { refs.meterBar.style.width = `${Math.min(l,1)*100}%`; }
+
+    // ── Placeholder ────────────────────────────────────────────────
+    function hidePlaceholder() { refs.placeholder?.setAttribute('hidden',''); }
+    function showPlaceholder(msg) {
+        if (refs.placeholder) {
+            refs.placeholder.querySelector('p').textContent = msg || '点击下方按钮开始对话';
+            refs.placeholder.removeAttribute('hidden');
         }
     }
 
-    function addErrorMessage(text) {
-        const div = document.createElement('div');
-        div.className = 'message system';
-        div.style.color = 'var(--danger)';
-        div.innerHTML = `<p>⚠ ${text}</p>`;
-        refs.chatMessages.appendChild(div);
-        scrollToBottom();
-    }
-
-    function scrollToBottom() {
-        refs.chatMessages.scrollTop = refs.chatMessages.scrollHeight;
-    }
-
-    // ── Audio meter ────────────────────────────────────────────────
-    function setMeterLevel(level) {
-        // level: 0.0 - 1.0
-        refs.meterBar.style.width = `${Math.min(level, 1) * 100}%`;
-    }
-
-    // ── Permission overlay ─────────────────────────────────────────
-    function hidePermissionOverlay() {
-        refs.permissionOverlay.classList.add('hidden');
-    }
-    function showPermissionOverlay(msg) {
-        refs.permissionOverlay.querySelector('p').textContent =
-            msg || '点击「开始对话」授权摄像头与麦克风';
-        refs.permissionOverlay.classList.remove('hidden');
-    }
-
     // ── Buttons ────────────────────────────────────────────────────
-    function setButtons(startEnabled, stopEnabled) {
-        refs.btnStart.disabled = !startEnabled;
-        refs.btnStop.disabled = !stopEnabled;
+    function setButtons(start, stop) {
+        refs.btnStart.disabled = !start;
+        refs.btnStop.disabled = !stop;
     }
 
-    // ── Audio toggle ───────────────────────────────────────────────
-    function isAudioEnabled() {
-        return refs.audioToggle.checked;
-    }
-    function onAudioToggle(fn) {
-        refs.audioToggle.addEventListener('change', fn);
-    }
-    function setCostHint(text) {
-        refs.costHint.textContent = text;
-    }
+    // ── Toggles ────────────────────────────────────────────────────
+    function isAudioEnabled() { return refs.audioToggle.checked; }
+    function isSubtitleEnabled() { return refs.subtitleToggle.checked; }
+    function onAudioToggle(fn) { refs.audioToggle.addEventListener('change', fn); }
+
+    // ── Subtitle ───────────────────────────────────────────────────
+    function setSubtitle(t) { refs.subtitleText.textContent = t || ''; }
+    function clearSubtitle() { refs.subtitleText.textContent = ''; }
+
+    // ── Cost ───────────────────────────────────────────────────────
+    function setCostHint(t) { refs.costHint.textContent = t; }
+    function showInterrupt(show) { if (show) refs.interruptBtn.removeAttribute('hidden'); else refs.interruptBtn.setAttribute('hidden',''); }
+    function setCostDisplay(text) { refs.costDisplay.textContent = text || ''; }
 
     // ── Helpers ────────────────────────────────────────────────────
-    function escapeHtml(str) {
-        const div = document.createElement('div');
-        div.textContent = str;
-        return div.innerHTML;
-    }
-    function pad(n) { return String(n).padStart(2, '0'); }
+    function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+    function pad(n) { return String(n).padStart(2,'0'); }
 
-    // ── Public API ─────────────────────────────────────────────────
     return {
         refs,
-        setStatus,
-        addSystemMessage,
-        startAiBubble,
-        appendAiText,
-        finishAiBubble,
-        addErrorMessage,
-        setMeterLevel,
-        hidePermissionOverlay,
-        showPermissionOverlay,
-        setButtons,
-        isAudioEnabled,
-        onAudioToggle,
-        setCostHint,
-        scrollToBottom,
-        // ── Subtitle ───────────────────────────────────────────
-        setSubtitle(text) {
-            refs.subtitleText.textContent = text || '';
-        },
-        clearSubtitle() {
-            refs.subtitleText.textContent = '';
-        },
-        isSubtitleEnabled() {
-            return refs.subtitleToggle.checked;
-        },
-        onSubtitleToggle(fn) {
-            refs.subtitleToggle.addEventListener('change', fn);
-        },
+        showConversation, showLanding,
+        setStatus, addSystemMessage, startAiBubble, appendAiText, finishAiBubble,
+        addUserSpeech, addErrorMessage, setMeterLevel, hidePlaceholder, showPlaceholder,
+        setButtons, isAudioEnabled, isSubtitleEnabled, onAudioToggle,
+        setSubtitle, clearSubtitle, setCostHint, showInterrupt, setCostDisplay,
     };
 })();
