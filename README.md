@@ -11,6 +11,12 @@
 </p>
 
 <p align="center">
+  <a href="https://www.bilibili.com/video/BV1MKJN6VEKu/"><strong>🎬 演示视频：Bilibili 观看</strong></a>
+<p align="center">
+  <a href="https://www.bilibili.com/video/BV1MKJN6VEKu/"><strong>🎬 演示视频：Bilibili 观看</strong></a>
+</p>
+
+<p align="center">
   <img src="https://img.shields.io/badge/Python-3.11+-blue" alt="Python">
   <img src="https://img.shields.io/badge/FastAPI-0.115+-green" alt="FastAPI">
   <img src="https://img.shields.io/badge/Qwen-Omni%20Flash-orange" alt="Qwen">
