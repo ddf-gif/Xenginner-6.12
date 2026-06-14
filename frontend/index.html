@@ -3,192 +3,226 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LENS — AI 视觉对话</title>
+    <title>LENS — AI 视觉助手</title>
     <link rel="stylesheet" href="/css/style.css">
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#0d0d0d">
-    <meta name="description" content="AI 视觉对话助手 — 让 AI 通过摄像头看见世界">
+    <meta name="theme-color" content="#f9f9f9">
 </head>
 <body>
 
 <!-- ================================================================ -->
-<!--  LANDING                                                        -->
+<!--  PAGE 1 · LANDING                                                 -->
 <!-- ================================================================ -->
-<main id="landing" class="landing" aria-label="首页">
+<main id="landing" class="page page--active">
     <div class="deco-blob deco-blob--1"></div>
     <div class="deco-blob deco-blob--2"></div>
     <div class="deco-blob deco-blob--3"></div>
 
     <div class="landing-body">
-        <header class="landing-header">
-            <h1 class="landing-title">
-                <span class="title-accent">AI 视觉助手</span>
+        <header class="landing-hero">
+            <h1 class="hero-title">
+                <span class="hero-line">AI 视觉助手</span>
+                <span class="hero-sub">解放双手，用声音和摄像头与世界互动</span>
             </h1>
-            <p class="landing-desc">解放双手，用声音和摄像头与世界互动</p>
+            <button id="btn-enter" class="hero-cta" type="button">
+                开始对话 <span>→</span>
+            </button>
         </header>
 
-        <!-- Scene cards -->
-        <div class="scene-grid">
-            <div class="scene-card">
-                <span class="scene-emoji">🍳</span>
-                <div class="scene-text">
-                    <h3>辅助烹饪</h3>
-                    <p>做饭时满手是油，张嘴问"下一步放什么"</p>
-                </div>
+        <!-- Cascade cards -->
+        <div class="cascade" id="cascade-cards">
+            <div class="c-card c-card--right" data-scene="cooking">
+                <div class="c-card-visual"><span class="c-emoji">🍳</span><div class="c-glow"></div></div>
+                <div class="c-card-body"><span class="c-tag">厨房场景</span><h3>辅助烹饪</h3><p>满手是油不用碰手机，张嘴就能问"下一步放什么"</p></div>
             </div>
-            <div class="scene-card">
-                <span class="scene-emoji">🔍</span>
-                <div class="scene-text">
-                    <h3>物品寻找</h3>
-                    <p>出门前找不到钥匙钱包，AI 帮你找</p>
-                </div>
+            <div class="c-card c-card--left" data-scene="search">
+                <div class="c-card-visual"><span class="c-emoji">🔍</span><div class="c-glow"></div></div>
+                <div class="c-card-body"><span class="c-tag">日常生活</span><h3>物品寻找</h3><p>找不到钥匙、钱包、眼镜？让 AI 当你的第二双眼睛</p></div>
             </div>
-            <div class="scene-card">
-                <span class="scene-emoji">📖</span>
-                <div class="scene-text">
-                    <h3>学习助手</h3>
-                    <p>白板笔记、书本文字、代码报错，问就行</p>
-                </div>
+            <div class="c-card c-card--right" data-scene="study">
+                <div class="c-card-visual"><span class="c-emoji">📖</span><div class="c-glow"></div></div>
+                <div class="c-card-body"><span class="c-tag">学习办公</span><h3>学习助手</h3><p>白板笔记、书本文字、代码报错，摄像头对准直接问</p></div>
             </div>
-            <div class="scene-card">
-                <span class="scene-emoji">🔧</span>
-                <div class="scene-text">
-                    <h3>DIY 维修</h3>
-                    <p>修电器装家具，摄像头照着边做边问</p>
-                </div>
+            <div class="c-card c-card--left" data-scene="diy">
+                <div class="c-card-visual"><span class="c-emoji">🔧</span><div class="c-glow"></div></div>
+                <div class="c-card-body"><span class="c-tag">手工维修</span><h3>DIY 维修指导</h3><p>修理电器、组装家具，摄像头照着边做边问</p></div>
             </div>
-            <div class="scene-card">
-                <span class="scene-emoji">👶</span>
-                <div class="scene-text">
-                    <h3>儿童教育</h3>
-                    <p>孩子指着东西问"这是什么"，AI 来答</p>
-                </div>
+            <div class="c-card c-card--right" data-scene="kids">
+                <div class="c-card-visual"><span class="c-emoji">👶</span><div class="c-glow"></div></div>
+                <div class="c-card-body"><span class="c-tag">亲子互动</span><h3>儿童教育</h3><p>孩子指着绘本玩具问"这是什么"，AI 用生动语言回答</p></div>
             </div>
-            <div class="scene-card">
-                <span class="scene-emoji">♿</span>
-                <div class="scene-text">
-                    <h3>无障碍辅助</h3>
-                    <p>用声音感知环境，药品识别、物品辨认</p>
-                </div>
+            <div class="c-card c-card--left" data-scene="accessibility">
+                <div class="c-card-visual"><span class="c-emoji">♿</span><div class="c-glow"></div></div>
+                <div class="c-card-body"><span class="c-tag">无障碍</span><h3>视觉辅助</h3><p>用声音感知周围环境，药品识别、物品辨认、房间定位</p></div>
             </div>
         </div>
 
-        <!-- Role -->
-        <div class="role-select">
-            <span class="role-label">AI 角色</span>
-            <div class="role-options" id="role-options">
-                <button class="role-btn active" data-role="assistant">通用</button>
-                <button class="role-btn" data-role="teacher">老师</button>
-                <button class="role-btn" data-role="coach">教练</button>
-                <button class="role-btn" data-role="foodie">美食家</button>
-                <button class="role-btn" data-role="tech">极客</button>
-                <button class="role-btn" data-role="storyteller">故事</button>
-                <button class="role-btn" data-role="listener">倾听</button>
+        <div class="landing-bottom">
+            <div class="mode-select">
+                <span class="mode-label">使用设备</span>
+                <div class="mode-options" id="mode-options">
+                    <button class="mode-btn active" data-mode="desktop">🖥 电脑端</button>
+                    <button class="mode-btn" data-mode="mobile">📱 手机端</button>
+                </div>
             </div>
-        </div>
-
-        <!-- 设备模式选择 -->
-        <div class="mode-select">
-            <span class="mode-label">使用设备</span>
-            <div class="mode-options" id="mode-options">
-                <button class="mode-btn active" data-mode="desktop">🖥 电脑端</button>
-                <button class="mode-btn" data-mode="mobile">📱 手机端</button>
+            <div class="role-select">
+                <span class="role-label">AI 角色</span>
+                <div class="role-options" id="role-options">
+                    <button class="role-btn active" data-role="assistant">通用</button>
+                    <button class="role-btn" data-role="teacher">老师</button>
+                    <button class="role-btn" data-role="coach">教练</button>
+                    <button class="role-btn" data-role="foodie">美食家</button>
+                    <button class="role-btn" data-role="tech">极客</button>
+                    <button class="role-btn" data-role="storyteller">故事</button>
+                </div>
             </div>
+            <div class="landing-links">
+                <button id="btn-to-settings" class="text-link" type="button">⚙️ API 设置</button>
+            </div>
+            <p class="landing-footnote">需要摄像头与麦克风权限</p>
         </div>
-
-        <button id="btn-enter" class="enter-btn" type="button">
-            <span>开始对话</span>
-        </button>
-        <p class="landing-footnote">需要摄像头与麦克风权限</p>
     </div>
 </main>
 
 <!-- ================================================================ -->
-<!--  CONVERSATION                                                   -->
+<!--  PAGE 2 · API SETTINGS                                            -->
 <!-- ================================================================ -->
-<div id="app" class="app" inert hidden data-mode="desktop">
+<div id="settings" class="page" inert hidden>
+    <button id="btn-settings-back" class="back-btn" type="button">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> 返回首页
+    </button>
 
-    <!-- Particle canvas -->
-    <canvas id="particles" class="particles"></canvas>
+    <div class="settings-hero">
+        <p class="settings-charm">⚙️ Preferences</p>
+        <h1>API <span class="accent-text">设置</span></h1>
+        <p class="settings-tagline">配置 AI 模型。使用自己的 Key 降低成本。</p>
+    </div>
 
-    <!-- Top bar -->
-    <nav class="topbar" aria-label="工具栏">
-        <button id="btn-back" class="topbar-btn" aria-label="返回首页" type="button">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 3L5 8l5 5"/></svg>
-        </button>
+    <div class="settings-grid">
+        <!-- Card: API 配置 -->
+        <div class="s-card">
+            <h3>🔑 API 配置</h3>
+            <p class="s-desc">选择模型提供商并填入 API Key。不配置则使用服务器默认的 Qwen。</p>
 
-        <div class="topbar-status">
-            <span id="status-dot" class="status-dot" aria-hidden="true"></span>
-            <span id="status-text" class="status-label">等待连接</span>
+            <div class="s-field">
+                <label>模型提供商</label>
+                <select id="model-select">
+                    <option value="qwen">Qwen Omni Flash（默认）</option>
+                    <option value="openai">OpenAI GPT-4o Realtime</option>
+                    <option value="custom">自定义端点</option>
+                </select>
+            </div>
+
+            <div class="s-field">
+                <label>API Key</label>
+                <input id="model-key" type="password" placeholder="sk-..." autocomplete="off" spellcheck="false">
+                <span class="s-hint">留空则使用服务器默认 Key</span>
+            </div>
+
+            <div class="s-field" id="custom-url-card" style="display:none">
+                <label>WebSocket 端点</label>
+                <input id="model-url" type="text" placeholder="wss://your-api.com/v1/realtime" autocomplete="off">
+            </div>
+
+            <div class="s-actions">
+                <button id="btn-reset-config" class="s-btn s-btn--ghost">重置</button>
+            </div>
         </div>
 
-        <span id="cost-display" class="topbar-cost" title="本次对话预估费用"></span>
+        <!-- Card: 当前状态 -->
+        <div class="s-card">
+            <h3>📊 当前状态</h3>
+            <p class="s-desc">连接状态与系统信息。</p>
 
+            <div class="s-status">
+                <div class="s-row"><span class="s-key">API 服务</span><span class="s-val"><span class="s-tag on" id="status-tag">就绪</span></span></div>
+                <div class="s-row"><span class="s-key">当前模型</span><span class="s-val" id="status-model">Qwen Omni Flash</span></div>
+                <div class="s-row"><span class="s-key">API Key</span><span class="s-val" id="status-key">服务器默认</span></div>
+                <div class="s-row"><span class="s-key">端点地址</span><span class="s-val" id="status-url">DashScope 官方</span></div>
+                <div class="s-row"><span class="s-key">设备模式</span><span class="s-val" id="status-mode">电脑端</span></div>
+                <div class="s-row"><span class="s-key">AI 角色</span><span class="s-val" id="status-role">通用助手</span></div>
+            </div>
+
+            <div class="s-tips">
+                <p class="s-tips-title">💡 使用提示</p>
+                <ul>
+                    <li>配置仅保存在当前浏览器会话中</li>
+                    <li>支持所有兼容 OpenAI Realtime 协议的模型</li>
+                    <li>自定义端点需支持 WebSocket 连接</li>
+                    <li>建议使用自己的 Key 以控制费用</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ================================================================ -->
+<!--  PAGE 3 · CONVERSATION                                            -->
+<!-- ================================================================ -->
+<div id="app" class="page" inert hidden data-mode="desktop">
+    <canvas id="particles" class="particles"></canvas>
+
+    <nav class="topbar" aria-label="工具栏">
+        <button id="btn-back" class="topbar-btn" aria-label="返回首页">←</button>
+        <div class="topbar-status">
+            <span id="scene-mascot" class="scene-mascot"></span>
+            <span id="status-dot" class="status-dot"></span>
+            <span id="status-text" class="status-label">等待连接</span>
+        </div>
+        <span id="cost-display" class="topbar-cost"></span>
         <div class="topbar-toggles">
             <label class="tgl" title="字幕"><input type="checkbox" id="subtitle-toggle" checked><span class="tgl-text">CC</span></label>
-            <label class="tgl" title="语音播报"><input type="checkbox" id="audio-toggle" checked><span class="tgl-text">语音</span></label>
+            <label class="tgl" title="语音"><input type="checkbox" id="audio-toggle" checked><span class="tgl-text">语音</span></label>
         </div>
     </nav>
 
-    <!-- Body -->
     <div class="app-body">
-
-        <!-- Chat panel (main area) -->
-        <section class="chat-panel" aria-label="对话记录">
+        <section class="chat-panel">
             <div class="chat-log" id="chat-messages">
-                <div class="msg msg--system">
-                    <p>准备好后点击「开始对话」，AI 将通过摄像头和麦克风与你交流。</p>
-                </div>
+                <div class="msg msg--system"><p>准备好后点击「开始对话」</p></div>
             </div>
             <div class="chat-foot">
-                <!-- Quick questions inline -->
                 <div class="quick-asks" id="quick-asks">
                     <button class="quick-btn" data-q="你看到了什么？">你看到了什么？</button>
                     <button class="quick-btn" data-q="描述一下这个场景">描述场景</button>
                     <button class="quick-btn" data-q="我手里拿的是什么？">这是什么</button>
                 </div>
                 <div class="chat-actions">
-                    <button id="btn-start" class="act act--primary" type="button">开始对话</button>
-                    <button id="btn-interrupt" class="act act--interrupt" type="button" hidden>打断</button>
-                    <button id="btn-stop" class="act act--stop" disabled type="button">停止</button>
+                    <button id="btn-start" class="act act--primary">开始对话</button>
+                    <button id="btn-interrupt" class="act act--interrupt" hidden>打断</button>
+                    <button id="btn-stop" class="act act--stop" disabled>停止</button>
                 </div>
-                <div class="audio-meter" id="audio-meter" aria-hidden="true">
-                    <div class="audio-meter-fill" id="meter-bar"></div>
-                </div>
+                <div class="audio-meter"><div class="audio-meter-fill" id="meter-bar"></div></div>
                 <span class="chat-foot-hint" id="cost-hint">语音播报开启</span>
             </div>
         </section>
 
-        <!-- Camera: floating draggable+resizable window -->
         <div id="camera-float" class="camera-float">
             <div class="camera-float-bar" id="camera-drag-handle">
                 <span class="float-title">📷</span>
                 <div class="float-bar-actions">
-                    <button id="btn-switch-cam" class="float-btn" title="切换前后摄像头" disabled>🔄</button>
+                    <button id="btn-switch-cam" class="float-btn" disabled title="切换摄像头">🔄</button>
                     <button id="btn-camera" class="float-btn" disabled title="开关摄像头">⏻</button>
-                    <button id="btn-resize-sm" class="float-btn float-btn--size" data-size="sm" title="小窗">◰</button>
-                    <button id="btn-resize-md" class="float-btn float-btn--size active" data-size="md" title="中窗">◱</button>
-                    <button id="btn-resize-lg" class="float-btn float-btn--size" data-size="lg" title="大窗">◲</button>
+                    <button id="btn-resize-sm" class="float-btn float-btn--size" data-size="sm">◰</button>
+                    <button id="btn-resize-md" class="float-btn float-btn--size active" data-size="md">◱</button>
+                    <button id="btn-resize-lg" class="float-btn float-btn--size" data-size="lg">◲</button>
                 </div>
             </div>
             <div id="camera-frame" class="camera-frame">
                 <video id="camera-preview" autoplay playsinline muted></video>
                 <canvas id="capture-canvas" hidden></canvas>
-                <div class="hud-scanlines" aria-hidden="true"></div>
+                <div class="hud-scanlines"></div>
                 <div id="permission-overlay" class="camera-placeholder">
-                    <div class="mini-mascot" id="mini-mascot" aria-hidden="true">
-                        <svg viewBox="0 0 60 60" fill="none"><circle cx="30" cy="26" r="20" fill="oklch(0.20 0 0)" stroke="oklch(0.30 0 0)" stroke-width="1"/><circle cx="22" cy="22" r="5" fill="oklch(0.95 0 0)"/><circle cx="38" cy="22" r="5" fill="oklch(0.95 0 0)"/><circle cx="23" cy="22" r="2.5" fill="oklch(0.15 0 0)"/><circle cx="39" cy="22" r="2.5" fill="oklch(0.15 0 0)"/><ellipse cx="30" cy="34" rx="4" ry="2.5" fill="var(--primary)"/><path d="M14 12 L18 8 M46 12 L42 8" stroke="oklch(0.30 0 0)" stroke-width="1.5" stroke-linecap="round"/></svg>
+                    <div class="mini-mascot" id="mini-mascot">
+                        <svg viewBox="0 0 60 60" fill="none"><circle cx="30" cy="26" r="20" fill="oklch(0.20 0 0)" stroke="oklch(0.30 0 0)" stroke-width="1"/><circle cx="22" cy="22" r="5" fill="oklch(0.95 0 0)"/><circle cx="38" cy="22" r="5" fill="oklch(0.95 0 0)"/><circle cx="23" cy="22" r="2.5" fill="oklch(0.15 0 0)"/><circle cx="39" cy="22" r="2.5" fill="oklch(0.15 0 0)"/><ellipse cx="30" cy="34" rx="4" ry="2.5" fill="var(--primary)"/></svg>
                     </div>
-                    <p>点击「开始对话」授权摄像头</p>
+                    <p>点击「开始对话」</p>
                 </div>
-                <div id="subtitle-bar" class="camera-subtitle" aria-live="polite">
-                    <span id="subtitle-text"></span>
-                </div>
-                <canvas id="waveform" class="waveform" aria-hidden="true"></canvas>
+                <div id="subtitle-bar" class="camera-subtitle"><span id="subtitle-text"></span></div>
+                <canvas id="waveform" class="waveform"></canvas>
                 <div class="camera-resize-handle" id="camera-resize-handle"></div>
             </div>
         </div>
-    </div>
     </div>
 </div>
 
@@ -198,8 +232,6 @@
 <script src="/js/ws-client.js"></script>
 <script src="/js/audio-playback.js"></script>
 <script src="/js/app.js"></script>
-<script>
-if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(()=>{}); }
-</script>
+<script>if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{})</script>
 </body>
 </html>

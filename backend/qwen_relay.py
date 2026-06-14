@@ -57,6 +57,20 @@ class QwenRelayClient:
         self._listen_task: Optional[asyncio.Task] = None
         self._idle_task: Optional[asyncio.Task] = None
         self._session_instructions = "你是AI视觉助手，请用中文简洁回答用户的问题。"
+        self._api_key = QWEN_API_KEY
+        self._ws_url = QWEN_WS_URL
+
+    def set_model_config(self, model: str = "qwen", api_key: str = "", api_url: str = ""):
+        if model == "openai":
+            self._ws_url = "wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview"
+            self._api_key = api_key or QWEN_API_KEY
+        elif model == "custom" and api_url:
+            self._ws_url = api_url
+            self._api_key = api_key or QWEN_API_KEY
+        else:
+            self._ws_url = QWEN_WS_URL
+            self._api_key = api_key or QWEN_API_KEY
+        logger.info("Model: %s -> %s", model, self._ws_url[:60])
 
     # ── Connection lifecycle ─────────────────────────────────────────
 
@@ -65,10 +79,10 @@ class QwenRelayClient:
         try:
             # Headers for DashScope auth
             extra_headers = {
-                "Authorization": f"Bearer {QWEN_API_KEY}",
+                "Authorization": f"Bearer {self._api_key}",
             }
             self._ws = await websockets.connect(
-                QWEN_WS_URL,
+                self._ws_url,
                 additional_headers=extra_headers,
                 ping_interval=30,
                 ping_timeout=10,

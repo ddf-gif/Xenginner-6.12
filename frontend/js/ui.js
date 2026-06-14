@@ -44,6 +44,7 @@ const UI = (() => {
         roleOptions:    $('#role-options'),
         modeOptions:    $('#mode-options'),
         app:           $('#app'),
+        settingsPage:  $('#settings'),
         quickAsks:      $('#quick-asks'),
         miniMascot:     $('#mini-mascot'),
     };
@@ -54,15 +55,20 @@ const UI = (() => {
 
     // ── Pages ──────────────────────────────────────────────────────
     function showConversation() {
-        refs.landing.setAttribute('hidden', '');
-        refs.app.removeAttribute('hidden');
-        refs.app.removeAttribute('inert');
+        hideAllPages(); refs.app.removeAttribute('hidden'); refs.app.removeAttribute('inert');
     }
     function showLanding() {
-        refs.app.setAttribute('hidden', '');
-        refs.app.setAttribute('inert', '');
-        refs.landing.removeAttribute('hidden');
+        stopIfNeeded(); hideAllPages(); refs.landing.removeAttribute('hidden'); refs.landing.removeAttribute('inert');
     }
+    function showSettings() {
+        stopIfNeeded(); hideAllPages(); refs.settingsPage.removeAttribute('hidden'); refs.settingsPage.removeAttribute('inert');
+    }
+    function hideAllPages() {
+        [refs.landing,refs.app,refs.settingsPage].forEach(p=>{if(p){p.setAttribute('hidden','');p.setAttribute('inert','')}});
+    }
+    // Called when navigating away from conversation
+    let _stopFn=null;function setStopFn(fn){_stopFn=fn}
+    function stopIfNeeded(){if(_stopFn)try{_stopFn()}catch(e){}}
 
     // ── Status ─────────────────────────────────────────────────────
     function setStatus(state) {
@@ -138,13 +144,19 @@ const UI = (() => {
     }
 
     // Welcome card
-    function showWelcome() {
-        if (_welcomeEl) return;
+    function showWelcome(msg,mascot) {
+        if (_welcomeEl) _welcomeEl.remove();
         _welcomeEl = document.createElement('div');
         _welcomeEl.className = 'welcome-card';
-        _welcomeEl.innerHTML = '<div class="welcome-card-icon">🦉</div><h3>AI 视觉对话助手已就绪</h3><p>直接说话或点击下方快捷提问开始交流</p>';
+        const icon=mascot||'🦉';
+        const text=(msg||'AI 视觉对话助手已就绪').replace(/\n/g,'<br>');
+        _welcomeEl.innerHTML = '<div class="welcome-card-icon">'+icon+'</div><p>'+text+'</p>';
         refs.chatMessages.appendChild(_welcomeEl);
         scrollChat();
+    }
+    function setSceneMascot(emoji){
+        const el=document.getElementById('scene-mascot');
+        if(el)el.textContent=emoji||'';
     }
     function removeWelcome() {
         if (_welcomeEl) { _welcomeEl.remove(); _welcomeEl = null; }
@@ -208,10 +220,10 @@ const UI = (() => {
 
     return {
         refs,
-        showConversation, showLanding,
+        showConversation, showLanding, showSettings, setStopFn,
         setStatus, addSystemMessage, startAiBubble, appendAiText, finishAiBubble,
         addUserSpeech, addErrorMessage, setMeterLevel, hidePlaceholder, showPlaceholder,
-        showTyping, removeTyping, showWelcome, removeWelcome,
+        showTyping, removeTyping, showWelcome, removeWelcome, setSceneMascot,
         setButtons, isAudioEnabled, isSubtitleEnabled, onAudioToggle,
         setSubtitle, clearSubtitle, setCostHint, showInterrupt, setCostDisplay,
     };
