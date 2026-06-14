@@ -1,97 +1,140 @@
-# 🤖 AI 视觉对话助手
+<h1 align="center">
+  🦉 LENS — AI 视觉对话助手
+</h1>
 
-基于 **Qwen3-Omni-Flash-Realtime** 多模态大模型的实时 AI 视觉对话应用。
+<p align="center">
+  <strong>解放双手，用声音和摄像头与世界互动</strong>
+</p>
 
-打开摄像头与麦克风，AI 能看见你、听见你，并实时做出回应。
+<p align="center">
+  <a href="https://49.233.93.220"><strong>🔗 在线体验：https://49.233.93.220</strong></a>
+</p>
 
-## 功能特性
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.11+-blue" alt="Python">
+  <img src="https://img.shields.io/badge/FastAPI-0.115+-green" alt="FastAPI">
+  <img src="https://img.shields.io/badge/Qwen-Omni%20Flash-orange" alt="Qwen">
+  <img src="https://img.shields.io/badge/OpenAI-GPT--4o%20Realtime-412991" alt="OpenAI">
+  <img src="https://img.shields.io/badge/PWA-ready-purple" alt="PWA">
+</p>
 
-- 🎥 **实时摄像头画面** — AI 能理解你摄像头中的视觉内容
-- 🎤 **实时语音对话** — 说话即可与 AI 自然交流
-- 📝 **流式文字回复** — AI 回复逐字显示
-- 🔊 **语音播报** — AI 以语音方式读回复（可关闭省费）
-- 💰 **成本控制** — VAD 静音过滤、480p 低帧率、纯文本模式
+---
 
-## 技术栈
+## 🎯 这是什么？
+
+**LENS** 是一款 AI 视觉对话应用。打开摄像头和麦克风，AI 能实时看到你的画面、听到你的声音，并以文字+语音做出回应。
+
+### 六大使用场景
+
+| 🍳 辅助烹饪 | 🔍 物品寻找 | 📖 学习助手 |
+|:---:|:---:|:---:|
+| 满手是油不动手机 | 找不到钥匙钱包 | 白板笔记代码报错 |
+| 张嘴就问下一步 | AI 帮你四处找 | 摄像头对准直接问 |
+
+| 🔧 DIY 维修 | 👶 儿童教育 | ♿ 视觉辅助 |
+|:---:|:---:|:---:|
+| 边修边问解放双手 | 孩子指着问这是什么 | 用声音感知环境 |
+
+---
+
+## ✨ 功能特性
+
+- 🎥 **实时视觉理解** — AI 看到摄像头画面，理解场景、物体、文字
+- 🎤 **自然语音对话** — 边说边听边回应，像和真人聊天
+- 📝 **流式文字回复** — 逐字显示，阅读体验流畅
+- 🔊 **语音播报** — TTS 语音读出回复（可关闭省费）
+- 🎭 **场景化主题** — 6 大场景，每个有独立配色和 AI 角色
+- 🔄 **多模型支持** — Qwen Omni / OpenAI GPT-4o / 自定义端点
+- 💰 **成本可控** — 自适应帧率、VAD 静音过滤、用户自有 Key
+- 📱 **PWA 安装** — 可添加到手机桌面，像原生 App
+- 🖥️📱 **双设备模式** — 电脑端浮动窗 + 手机端全屏
+
+---
+
+## 🚀 快速开始
+
+### 本地运行
+
+```bash
+# 1. 克隆
+git clone https://github.com/ddf-gif/Xenginner-6.12.git
+cd Xenginner-6.12/backend
+
+# 2. 安装依赖
+pip install -r requirements.txt
+
+# 3. 配置 API Key
+echo "QWEN_API_KEY=你的Key" > .env
+
+# 4. 启动
+python3 main.py
+# → http://localhost:8000
+```
+
+### Docker 部署
+
+```bash
+docker-compose up -d
+# → http://localhost:3000
+```
+
+### 一键部署到服务器
+
+```bash
+bash deploy.sh <你的API_Key>
+```
+
+---
+
+## 🛠 技术栈
 
 | 层 | 技术 |
-|---|---|
-| 前端 | HTML5 + CSS3 + Vanilla JS (Web Audio API / Canvas / MediaDevices) |
+|---|------|
+| 前端 | HTML5 + CSS3 + Vanilla JS (Web Audio / Canvas / MediaDevices) |
 | 后端 | Python 3.11+ / FastAPI / websockets |
-| AI | Qwen3-Omni-Flash-Realtime (DashScope WebSocket API) |
+| AI 模型 | Qwen3-Omni-Flash-Realtime / OpenAI GPT-4o Realtime |
+| 部署 | Docker + Nginx + Systemd / PWA |
 
-## 快速开始
+---
 
-### 1. 安装依赖
-
-```bash
-cd backend
-pip install -r requirements.txt
-```
-
-### 2. 配置 API Key
-
-```bash
-cp .env.example .env
-# 编辑 .env 填入你的 Qwen API Key
-```
-
-### 3. 启动服务
-
-```bash
-python main.py
-```
-
-### 4. 打开浏览器
-
-访问 http://localhost:8000，点击「开始对话」并授权摄像头与麦克风。
-
-## 项目结构
+## 📁 项目结构
 
 ```
 Xenginner-6.12/
 ├── backend/
-│   ├── main.py          # FastAPI 服务 + WebSocket 端点
-│   ├── qwen_relay.py    # Qwen 实时 API 中继客户端
+│   ├── main.py          # FastAPI + WebSocket 端点
+│   ├── qwen_relay.py    # 多模型中继客户端
 │   ├── protocol.py      # 消息协议定义
 │   ├── config.py        # 配置管理
-│   └── requirements.txt # Python 依赖
+│   └── requirements.txt
 ├── frontend/
-│   ├── index.html       # 应用入口
-│   ├── css/style.css    # 暗色主题样式
-│   └── js/
-│       ├── app.js           # 应用编排
-│       ├── ui.js            # UI 工具函数
-│       ├── audio-capture.js # 音频采集 (PCM16 16kHz)
-│       ├── audio-playback.js# 音频播放 (PCM24 24kHz)
-│       ├── video-capture.js # 视频帧采集 (480p JPEG)
-│       └── ws-client.js     # WebSocket 客户端
+│   ├── index.html       # 三页 SPA（首页/设置/对话）
+│   ├── css/style.css    # 完整样式系统
+│   ├── js/
+│   │   ├── app.js           # 主逻辑 + 场景系统
+│   │   ├── ui.js            # UI 工具函数
+│   │   ├── audio-capture.js # 音频采集 (PCM16)
+│   │   ├── audio-playback.js# 音频播放
+│   │   ├── video-capture.js # 视频采集 (自适应帧率)
+│   │   └── ws-client.js     # WebSocket 客户端
+│   ├── manifest.json    # PWA 配置
+│   └── sw.js            # Service Worker
 ├── docs/DESIGN.md       # 设计文档
-└── README.md
+├── Dockerfile
+├── docker-compose.yml
+└── deploy.sh            # 一键部署脚本
 ```
 
-## 依赖说明
+---
 
-### Python (backend/requirements.txt)
-- `fastapi>=0.115.0` — Web 框架
-- `uvicorn[standard]>=0.30.0` — ASGI 服务器
-- `websockets>=13.0` — WebSocket 客户端
+## 📄 设计文档
 
-### 第三方 API
-- [Qwen3-Omni-Flash-Realtime](https://dashscope.console.aliyun.com/) — 阿里云 DashScope 多模态实时模型
+完整设计文档：[docs/DESIGN.md](docs/DESIGN.md)
 
-### 浏览器要求
-- Chrome 90+ / Edge 90+ / Firefox 90+ (需支持 WebSocket, Web Audio API, MediaDevices)
-- HTTPS 或 localhost（浏览器安全策略要求）
+包含：24 个用户故事、10 项成本控制策略、系统架构、协议设计、音视频技术细节。
 
-## 成本提示
+---
 
-默认开启语音播报（费用较高）。关闭语音播报可降低约 **9 倍** 费用：
-- 文字输出: ~8.3 元/百万 Token
-- 语音输出: ~75.1 元/百万 Token
-
-建议日常使用纯文字模式，需要时再开启语音。
-
-## License
+## 📜 License
 
 MIT
