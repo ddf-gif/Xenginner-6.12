@@ -12,8 +12,6 @@
 
 <p align="center">
   <a href="https://www.bilibili.com/video/BV1MKJN6VEKu/"><strong>🎬 演示视频：Bilibili 观看</strong></a>
-<p align="center">
-  <a href="https://www.bilibili.com/video/BV1MKJN6VEKu/"><strong>🎬 演示视频：Bilibili 观看</strong></a>
 </p>
 
 <p align="center">
