@@ -66,7 +66,7 @@ const App = (() => {
     function interrupt(){if(_ws?.isConnected)_ws.send({type:'cancel'});UI.showInterrupt(false);UI.addSystemMessage('已打断')}
 
     // ── Start / Stop ──────────────────────────────────────────────
-    async function start(){if(_state===State.RUNNING)return;_state=State.STARTING;UI.setStatus('connecting');Cost.reset();updateCost();if(!await requestMedia()){_state=State.ERROR;UI.setStatus('error');UI.setButtons(true,false);return}_ws=new WsClient();_ws.onMessage=handleWsMessage;_ws.connect();_audioOut=AudioPlayback;await AudioCapture.start(_mediaStream);AudioCapture.onChunk=b64=>{if(!_muted&&_ws?.isConnected)_ws.send({type:'audio',data:b64})};AudioCapture.onLevel=l=>{UI.setMeterLevel(l);drawWaveform(l)};VideoCapture.start(UI.refs.cameraPreview,UI.refs.captureCanvas);VideoCapture.onFrame=b64=>{if(_cameraOn&&_ws?.isConnected){_ws.send({type:'video',data:b64});Cost.videoFrames++}};UI.refs.quickAsks.style.display='flex';setTimeout(()=>{if(_ws?.isConnected)_ws.send({type:'start_session',instructions:getInstructions(),model:_selectedModel,api_key:_customKey,api_url:_customUrl})},600);_state=State.RUNNING;UI.setStatus('listening');UI.setButtons(false,true);UI.refs.btnCamera.disabled=false;if(UI.refs.btnSwitchCam)UI.refs.btnSwitchCam.disabled=false;UI.showWelcome(_sceneContext&&SCENES[_sceneContext]?SCENES[_sceneContext].welcome:'👋 欢迎使用 AI 视觉助手！\n\n直接说话或点击快捷提问开始。')}
+    async function start(){if(_state===State.RUNNING)return;UI.refs.app?.setAttribute("data-mode",_deviceMode||"desktop");_state=State.STARTING;UI.setStatus('connecting');Cost.reset();updateCost();if(!await requestMedia()){_state=State.ERROR;UI.setStatus('error');UI.setButtons(true,false);return}_ws=new WsClient();_ws.onMessage=handleWsMessage;_ws.connect();_audioOut=AudioPlayback;await AudioCapture.start(_mediaStream);AudioCapture.onChunk=b64=>{if(!_muted&&_ws?.isConnected)_ws.send({type:'audio',data:b64})};AudioCapture.onLevel=l=>{UI.setMeterLevel(l);drawWaveform(l)};VideoCapture.start(UI.refs.cameraPreview,UI.refs.captureCanvas);VideoCapture.onFrame=b64=>{if(_cameraOn&&_ws?.isConnected){_ws.send({type:'video',data:b64});Cost.videoFrames++}};UI.refs.quickAsks.style.display='flex';setTimeout(()=>{if(_ws?.isConnected)_ws.send({type:'start_session',instructions:getInstructions(),model:_selectedModel,api_key:_customKey,api_url:_customUrl})},600);_state=State.RUNNING;UI.setStatus('listening');UI.setButtons(false,true);UI.refs.btnCamera.disabled=false;if(UI.refs.btnSwitchCam)UI.refs.btnSwitchCam.disabled=false;UI.showWelcome(_sceneContext&&SCENES[_sceneContext]?SCENES[_sceneContext].welcome:'👋 欢迎使用 AI 视觉助手！\n\n直接说话或点击快捷提问开始。')}
     async function stop(){Cost.stopAudio();Cost.reset();updateCost();AudioCapture.stop();VideoCapture.stop();_audioOut.destroy();if(_ws){_ws.send({type:'end_session'});_ws.disconnect();_ws=null}stopMedia();UI.showInterrupt(false);UI.refs.quickAsks.style.display='none';_state=State.IDLE;_cameraOn=true;_subtitleText='';UI.setStatus('idle');UI.setButtons(true,false);UI.clearSubtitle()}
     function toggleCamera(){_cameraOn=!_cameraOn;if(_mediaStream){const vt=_mediaStream.getVideoTracks()[0];if(vt)vt.enabled=_cameraOn}const b=UI.refs.btnCamera;if(_cameraOn){b.classList.remove('off');b.title='关闭摄像头'}else{b.classList.add('off');b.title='打开摄像头'}}
     async function switchCamera(){_facingMode=_facingMode==='user'?'environment':'user';if(_mediaStream){_mediaStream.getVideoTracks().forEach(t=>t.stop());const newStream=await navigator.mediaDevices.getUserMedia({video:{width:{ideal:1280},height:{ideal:720},facingMode:_facingMode},audio:false});const vt=newStream.getVideoTracks()[0];const at=_mediaStream.getAudioTracks();_mediaStream=newStream;at.forEach(t=>_mediaStream.addTrack(t));UI.refs.cameraPreview.srcObject=_mediaStream;if(!_cameraOn)vt.enabled=false}UI.addSystemMessage(_facingMode==='environment'?'已切换后置摄像头':'已切换前置摄像头')}
@@ -82,6 +82,8 @@ const App = (() => {
             btn.classList.add('active');_deviceMode=btn.dataset.mode;
             UI.refs.app?.setAttribute('data-mode',_deviceMode);
         });
+        // Sync mode from landing to app on enter
+        UI.refs.btnEnter.addEventListener('click',()=>{UI.refs.app?.setAttribute('data-mode',_deviceMode||'desktop');_sceneContext='';UI.showConversation();start()});
         UI.refs.roleOptions.addEventListener('click',e=>{const btn=e.target.closest('.role-btn');if(!btn)return;UI.refs.roleOptions.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');_selectedRole=btn.dataset.role});
         UI.refs.quickAsks.addEventListener('click',e=>{const btn=e.target.closest('.quick-btn');if(!btn||_state!==State.RUNNING)return;UI.addUserSpeech('💡 试试说: '+btn.dataset.q)});
         // Model selector
@@ -100,13 +102,13 @@ const App = (() => {
         // Update status on role click
         document.getElementById('role-options')?.addEventListener('click',()=>{setTimeout(()=>{const a=document.querySelector('#role-options .role-btn.active');if(statusRole&&a)statusRole.textContent=a.textContent},50)});
         // Scene card clicks → start conversation directly with themed UI
-        document.getElementById('cascade-cards')?.addEventListener('click',e=>{const card=e.target.closest('.c-card');if(!card)return;_sceneContext=card.dataset.scene||'';UI.refs.app.setAttribute('data-scene',_sceneContext||'default');UI.showConversation();start()});
+        document.getElementById('cascade-cards')?.addEventListener('click',e=>{const card=e.target.closest('.c-card');if(!card)return;_sceneContext=card.dataset.scene||'';UI.refs.app.setAttribute('data-scene',_sceneContext||'default');UI.refs.app.setAttribute('data-mode',_deviceMode||'desktop');UI.showConversation();start()});
 
         // Reset config button
         document.getElementById('btn-reset-config')?.addEventListener('click',()=>{if(modelSel)modelSel.value='qwen';if(modelKey)modelKey.value='';if(modelUrl)modelUrl.value='';_selectedModel='qwen';_customKey='';_customUrl='';if(customRow)customRow.style.display='none';if(statusModel)statusModel.textContent='Qwen Omni Flash';if(statusKey)statusKey.textContent='服务器默认';if(statusUrl)statusUrl.textContent='DashScope 官方';if(statusTag)statusTag.textContent='已重置'});
 
         // Page navigation
-        UI.refs.btnEnter.addEventListener('click',()=>{_sceneContext='';UI.refs.app.setAttribute('data-scene','default');UI.showConversation();start()});
+        // (btnEnter handler merged with mode sync above)
         UI.refs.btnBack.addEventListener('click',()=>{stop();UI.showLanding()});
         // Settings page
         const btnToSettings=document.getElementById('btn-to-settings');
