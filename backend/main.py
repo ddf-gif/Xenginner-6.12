@@ -89,6 +89,11 @@ async def websocket_endpoint(ws: WebSocket):
             msg_type = msg.get("type", "")
 
             if msg_type == "start_session":
+                # Support custom model/key/endpoint
+                model = msg.get("model", "qwen")
+                api_key = msg.get("api_key", "")
+                api_url = msg.get("api_url", "")
+                qwen.set_model_config(model, api_key, api_url)
                 connected = await qwen.connect()
                 if connected:
                     instructions = msg.get("instructions", "你是AI视觉助手，请用中文简洁回答用户的问题。")
